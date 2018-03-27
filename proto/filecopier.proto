@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package filecopier;
+
+message CopyRequest {
+  string input_file = 1;
+  string input_server = 2;
+
+  string output_file = 3;
+  string output_server = 4;
+}
+
+message CopyResponse {
+  int64 millis_to_copy = 1;
+}
+
+message KeyRequest {
+  string key = 1;
+  string server = 2;
+}
+
+message KeyResponse {}
+
+message AcceptsRequest {}
+
+message AcceptsResponse {
+  repeated string server = 1;
+}
+
+service FileCopierService {
+  rpc Copy(CopyRequest) returns (CopyResponse) {};
+  rpc ReceiveKey(KeyRequest) returns (KeyResponse) {};
+  rpc Accepts(AcceptsRequest) returns (AcceptsResponse) {};
+}
