@@ -5,7 +5,6 @@ package filecopier;
 message CopyRequest {
   string input_file = 1;
   string input_server = 2;
-
   string output_file = 3;
   string output_server = 4;
 }
