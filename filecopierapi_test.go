@@ -2,6 +2,9 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"io/ioutil"
+	"os"
 	"testing"
 
 	pb "github.com/brotherlogic/filecopier/proto"
@@ -83,10 +86,54 @@ func TestReceiveKeyTwice(t *testing.T) {
 
 func TestCopy(t *testing.T) {
 	s := InitTestServer()
-	_, err := s.Copy(context.Background(), &pb.CopyRequest{InputFile: "test.txt", OutputFile: "testout.txt"})
+	os.Remove("test.txt")
+	os.Remove("testout.txt")
+	d := []byte("testing")
+	ioutil.WriteFile("test.txt", d, 0644)
+	dir, _ := os.Getwd()
+	_, err := s.Copy(context.Background(), &pb.CopyRequest{InputFile: fmt.Sprintf("%v/test.txt", dir), OutputFile: fmt.Sprintf("%v/testout.txt", dir)})
 
 	if err != nil {
 		t.Errorf("Error in copying file: %v", err)
+	}
+
+	dOut, err := ioutil.ReadFile("testout.txt")
+	if err != nil {
+		t.Fatalf("Error reading copied file: %v", err)
+	}
+	for i := range dOut {
+		if d[i] != dOut[i] {
+			t.Errorf("Mismatch between files %v and %v", d, dOut)
+		}
+	}
+}
+
+func TestCopyFailCopy(t *testing.T) {
+	s := InitTestServer()
+	os.Remove("test.txt")
+	os.Remove("testout.txt")
+	d := []byte("testing")
+	ioutil.WriteFile("test.txt", d, 0644)
+	dir, _ := os.Getwd()
+	_, err := s.Copy(context.Background(), &pb.CopyRequest{InputFile: fmt.Sprintf("%v/test22.txt", dir), OutputFile: fmt.Sprintf("%v/testout.txt", dir)})
+
+	if err == nil {
+		t.Errorf("Bad copy did not fail")
+	}
+}
+
+func TestCopyFailCommand(t *testing.T) {
+	s := InitTestServer()
+	os.Remove("test.txt")
+	os.Remove("testout.txt")
+	d := []byte("testing")
+	ioutil.WriteFile("test.txt", d, 0644)
+	dir, _ := os.Getwd()
+	s.command = "blah"
+	_, err := s.Copy(context.Background(), &pb.CopyRequest{InputFile: fmt.Sprintf("%v/test.txt", dir), OutputFile: fmt.Sprintf("%v/testout.txt", dir)})
+
+	if err == nil {
+		t.Errorf("Bad copy did not fail")
 	}
 }
 
