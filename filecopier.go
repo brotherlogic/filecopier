@@ -69,12 +69,14 @@ type Server struct {
 	keys    map[string]string
 	checker checker
 	writer  writer
+	command string
 }
 
 // Init builds the server
 func Init() *Server {
 	s := &Server{GoServer: &goserver.GoServer{}}
 	s.keys = make(map[string]string)
+	s.command = "/usr/bin/scp"
 	return s
 }
 

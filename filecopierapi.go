@@ -42,11 +42,16 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 		return &pb.CopyResponse{}, fmt.Errorf("%v is unable to handle this request", in.OutputServer)
 	}
 
-	commandsrc := fmt.Sprintf("scp %v:%v %v:%v", in.InputServer, in.InputFile, in.OutputServer, in.OutputFile)
-	command := exec.Command(commandsrc)
+	command := exec.Command(s.command, makeCopyString(in.InputServer, in.InputFile), makeCopyString(in.OutputServer, in.OutputFile))
 	t := time.Now()
-	command.Start()
-	command.Wait()
+	err := command.Start()
+	if err != nil {
+		return nil, err
+	}
+	err = command.Wait()
+	if err != nil {
+		return nil, err
+	}
 
 	return &pb.CopyResponse{MillisToCopy: time.Now().Sub(t).Nanoseconds() / 1000000}, nil
 }
