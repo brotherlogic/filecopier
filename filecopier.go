@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -12,6 +11,7 @@ import (
 	"github.com/brotherlogic/goserver"
 	"github.com/brotherlogic/goserver/utils"
 	"github.com/brotherlogic/keystore/client"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
 	pbd "github.com/brotherlogic/discovery/proto"
@@ -70,6 +70,7 @@ type Server struct {
 	checker checker
 	writer  writer
 	command string
+	mykey   string
 }
 
 // Init builds the server
@@ -100,6 +101,20 @@ func (s *Server) GetState() []*pbg.State {
 	return []*pbg.State{}
 }
 
+func (s *Server) shareKeys(ctx context.Context) {
+	entities, err := utils.ResolveAll("filecopier")
+	if err == nil {
+		for _, e := range entities {
+			conn, err := grpc.Dial(e.Ip+":"+strconv.Itoa(int(e.Port)), grpc.WithInsecure())
+			defer conn.Close()
+			if err == nil {
+				client := pb.NewFileCopierServiceClient(conn)
+				client.ReceiveKey(ctx, &pb.KeyRequest{Key: s.mykey, Server: s.GoServer.Registry.Identifier})
+			}
+		}
+	}
+}
+
 func main() {
 	var quiet = flag.Bool("quiet", false, "Show all output")
 	flag.Parse()
@@ -115,5 +130,6 @@ func main() {
 	server.Register = server
 
 	server.RegisterServer("filecopier", false)
+	server.RegisterRepeatingTask(server.shareKeys, time.Hour)
 	fmt.Printf("%v\n", server.Serve())
 }
