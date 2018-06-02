@@ -94,6 +94,24 @@ func Init() *Server {
 	return s
 }
 
+func (s *Server) keySetup() {
+	keys, err := readKeys("/home/simon/.ssh/authorized_keys")
+	if err != nil {
+		panic(err)
+	}
+	s.keys = keys
+
+	keys, err = readKeys("/home/simon/.ssh/id_rsa.pub")
+	if err != nil {
+		panic(err)
+	}
+
+	if len(keys) != 1 {
+		log.Fatalf("Weird key setup: %v", keys)
+	}
+	s.mykey = keys[s.GoServer.Registry.Identifier]
+}
+
 // DoRegister does RPC registration
 func (s *Server) DoRegister(server *grpc.Server) {
 	pb.RegisterFileCopierServiceServer(server, s)
@@ -138,6 +156,7 @@ func main() {
 		log.SetOutput(ioutil.Discard)
 	}
 	server := Init()
+	server.keySetup()
 	server.GoServer.KSclient = *keystoreclient.GetClient(server.GetIP)
 	server.PrepServer()
 	server.Register = server
