@@ -19,7 +19,7 @@ func (s *Server) ReceiveKey(ctx context.Context, in *pb.KeyRequest) (*pb.KeyResp
 	}
 
 	s.keys[in.Server] = in.Key
-	err := s.writer.writeKeys()
+	err := s.writer.writeKeys(s.keys)
 
 	return &pb.KeyResponse{}, err
 }
