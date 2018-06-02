@@ -1,10 +1,11 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os/exec"
 	"time"
+
+	"golang.org/x/net/context"
 
 	pb "github.com/brotherlogic/filecopier/proto"
 )
