@@ -11,14 +11,14 @@ func TestServerExpression(t *testing.T) {
 func TestBadRead(t *testing.T) {
 	_, err := readKeys("madeup/blah.txt")
 	if err == nil {
-		t.Errorf("Bad read did not fail: %v")
+		t.Errorf("Bad read did not fail: %v", err)
 	}
 }
 
 func TestBadWrite(t *testing.T) {
 	err := writeKeys("madeup/blah.txt", make(map[string]string))
 	if err == nil {
-		t.Errorf("Bad write did not fail: %v")
+		t.Errorf("Bad write did not fail: %v", err)
 	}
 }
 
