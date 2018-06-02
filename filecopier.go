@@ -20,7 +20,15 @@ import (
 )
 
 type writer interface {
-	writeKeys() error
+	writeKeys(keys map[string]string) error
+}
+
+type prodWriter struct {
+	file string
+}
+
+func (p *prodWriter) writeKeys(keys map[string]string) error {
+	return writeKeys(p.file, keys)
 }
 
 type checker interface {
@@ -75,9 +83,14 @@ type Server struct {
 
 // Init builds the server
 func Init() *Server {
-	s := &Server{GoServer: &goserver.GoServer{}}
-	s.keys = make(map[string]string)
-	s.command = "/usr/bin/scp"
+	s := &Server{
+		&goserver.GoServer{},
+		make(map[string]string),
+		&prodChecker{},
+		&prodWriter{},
+		"/usr/bin/scp",
+		"madeup",
+	}
 	return s
 }
 

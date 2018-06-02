@@ -24,7 +24,7 @@ func (t *testChecker) check(server string) bool {
 
 type testWriter struct{}
 
-func (t *testWriter) writeKeys() error {
+func (t *testWriter) writeKeys(map[string]string) error {
 	return nil
 }
 
