@@ -108,8 +108,10 @@ func (s *Server) keySetup() {
 	if len(keys) != 1 {
 		log.Fatalf("Weird key setup: %v", keys)
 	}
-	log.Fatalf("WHA: %v -> %v", keys, s.GoServer.Registry.Identifier)
-	s.mykey = keys[s.GoServer.Registry.Identifier]
+
+	for _, val := range keys {
+		s.mykey = val
+	}
 }
 
 // DoRegister does RPC registration
