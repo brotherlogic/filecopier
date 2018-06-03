@@ -108,7 +108,7 @@ func (s *Server) keySetup() {
 	if len(keys) != 1 {
 		log.Fatalf("Weird key setup: %v", keys)
 	}
-	log.Fatalf("WHA: %v", keys)
+	log.Fatalf("WHA: %v -> %v", keys, s.GoServer.Registry.Identifier)
 	s.mykey = keys[s.GoServer.Registry.Identifier]
 }
 
@@ -156,11 +156,11 @@ func main() {
 		log.SetOutput(ioutil.Discard)
 	}
 	server := Init()
-	server.keySetup()
 	server.GoServer.KSclient = *keystoreclient.GetClient(server.GetIP)
 	server.PrepServer()
 	server.Register = server
 
+	server.keySetup()
 	server.RegisterServer("filecopier", false)
 	server.RegisterRepeatingTask(server.shareKeys, time.Hour)
 	fmt.Printf("%v\n", server.Serve())
