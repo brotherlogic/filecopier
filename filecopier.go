@@ -96,10 +96,9 @@ func Init() *Server {
 
 func (s *Server) keySetup() {
 	keys, err := readKeys("/home/simon/.ssh/authorized_keys")
-	if err != nil {
-		panic(err)
+	if err == nil {
+		s.keys = keys
 	}
-	s.keys = keys
 
 	keys, err = readKeys("/home/simon/.ssh/id_rsa.pub")
 	if err != nil {
