@@ -108,6 +108,7 @@ func (s *Server) keySetup() {
 	if len(keys) != 1 {
 		log.Fatalf("Weird key setup: %v", keys)
 	}
+	log.Fatalf("WHA: %v", keys)
 	s.mykey = keys[s.GoServer.Registry.Identifier]
 }
 
