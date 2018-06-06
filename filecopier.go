@@ -87,7 +87,7 @@ func Init() *Server {
 		&goserver.GoServer{},
 		make(map[string]string),
 		&prodChecker{},
-		&prodWriter{},
+		&prodWriter{file: "/home/simon/.ssh/authorized_keys"},
 		"/usr/bin/scp",
 		"madeup",
 	}
