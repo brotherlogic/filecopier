@@ -32,43 +32,52 @@ func (p *prodWriter) writeKeys(keys map[string]string) error {
 }
 
 type checker interface {
-	check(server string) bool
+	check(server string) error
 }
 
 type prodChecker struct {
 	server string
 }
 
-func (p *prodChecker) check(server string) bool {
+func (p *prodChecker) check(server string) error {
 	conn, err := grpc.Dial(utils.Discover, grpc.WithInsecure())
-	if err == nil {
-		defer conn.Close()
-		client := pbd.NewDiscoveryServiceClient(conn)
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-		defer cancel()
-		list, err := client.ListAllServices(ctx, &pbd.ListRequest{})
-		if err == nil {
-			for _, cl := range list.Services.GetServices() {
-				if cl.GetIdentifier() == server {
-					conn, err := grpc.Dial(cl.GetIp()+":"+strconv.Itoa(int(cl.GetPort())), grpc.WithInsecure())
-					if err == nil {
-						defer conn.Close()
-						client := pb.NewFileCopierServiceClient(conn)
-						accepts, err := client.Accepts(ctx, &pb.AcceptsRequest{})
-						if err == nil {
-							for _, a := range accepts.Server {
-								if a == p.server {
-									return true
-								}
-							}
-						}
-					}
+	if err != nil {
+		return err
+	}
+
+	defer conn.Close()
+	client := pbd.NewDiscoveryServiceClient(conn)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	list, err := client.ListAllServices(ctx, &pbd.ListRequest{})
+	if err != nil {
+		return err
+	}
+
+	for _, cl := range list.Services.GetServices() {
+		if cl.GetIdentifier() == server {
+			conn, err := grpc.Dial(cl.GetIp()+":"+strconv.Itoa(int(cl.GetPort())), grpc.WithInsecure())
+			if err != nil {
+				return err
+			}
+
+			defer conn.Close()
+			client := pb.NewFileCopierServiceClient(conn)
+			accepts, err := client.Accepts(ctx, &pb.AcceptsRequest{})
+			if err != nil {
+				return err
+			}
+
+			for _, a := range accepts.Server {
+				if a == p.server {
+					return nil
 				}
 			}
 		}
+
 	}
 
-	return false
+	return fmt.Errorf("Server %v was not found!", server)
 }
 
 //Server main server type
