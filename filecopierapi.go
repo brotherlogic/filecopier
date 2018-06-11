@@ -35,17 +35,19 @@ func (s *Server) Accepts(ctx context.Context, in *pb.AcceptsRequest) (*pb.Accept
 
 // Copy copies over a key
 func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse, error) {
-	if !s.checker.check(in.InputServer) {
-		return &pb.CopyResponse{}, fmt.Errorf("%v is unable to handle this request", in.InputServer)
+	err := s.checker.check(in.InputServer)
+	if err != nil {
+		return &pb.CopyResponse{}, fmt.Errorf("Input %v is unable to handle this request: %v", in.InputServer, err)
 	}
 
-	if !s.checker.check(in.OutputServer) {
-		return &pb.CopyResponse{}, fmt.Errorf("%v is unable to handle this request", in.OutputServer)
+	err = s.checker.check(in.OutputServer)
+	if err != nil {
+		return &pb.CopyResponse{}, fmt.Errorf("Output %v is unable to handle this request: %v", in.OutputServer, err)
 	}
 
 	command := exec.Command(s.command, makeCopyString(in.InputServer, in.InputFile), makeCopyString(in.OutputServer, in.OutputFile))
 	t := time.Now()
-	err := command.Start()
+	err = command.Start()
 	if err != nil {
 		return nil, err
 	}
