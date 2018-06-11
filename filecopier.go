@@ -174,6 +174,6 @@ func main() {
 
 	server.keySetup()
 	server.RegisterServer("filecopier", false)
-	server.RegisterRepeatingTask(server.shareKeys, time.Hour)
+	server.RegisterRepeatingTaskNonMaster(server.shareKeys, time.Hour)
 	fmt.Printf("%v\n", server.Serve())
 }
