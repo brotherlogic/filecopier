@@ -55,7 +55,7 @@ func (p *prodChecker) check(server string) error {
 	}
 
 	for _, cl := range list.Services.GetServices() {
-		if cl.GetIdentifier() == server {
+		if cl.GetIdentifier() == server && cl.GetName() == "filecopier" {
 			conn, err := grpc.Dial(cl.GetIp()+":"+strconv.Itoa(int(cl.GetPort())), grpc.WithInsecure())
 			if err != nil {
 				return err

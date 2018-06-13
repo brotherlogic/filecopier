@@ -14,12 +14,12 @@ type testChecker struct {
 	failServer string
 }
 
-func (t *testChecker) check(server string) bool {
+func (t *testChecker) check(server string) error {
 	if t.failServer == "" || server != t.failServer {
-		return true
+		return nil
 	}
 
-	return false
+	return fmt.Errorf("FAIL")
 }
 
 type testWriter struct{}
