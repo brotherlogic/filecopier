@@ -77,7 +77,7 @@ func (p *prodChecker) check(server string) error {
 
 	}
 
-	return fmt.Errorf("Server %v was not found!", server)
+	return fmt.Errorf("Server %v was not found! (we looked in %v)", server, list)
 }
 
 //Server main server type
