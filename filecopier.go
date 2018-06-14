@@ -73,6 +73,7 @@ func (p *prodChecker) check(server string) error {
 					return nil
 				}
 			}
+			return fmt.Errorf("Match not found (%v), and %v", accepts, p.server)
 		}
 
 	}
