@@ -147,22 +147,16 @@ func (s *Server) GetState() []*pbg.State {
 func (s *Server) shareKeys(ctx context.Context) {
 	entities, err := utils.ResolveAll("filecopier")
 
-	if err != nil {
-		log.Fatalf("Failure to resolve: %v", err)
-	}
-
-	if len(entities) == 0 {
-		log.Fatalf("Unable to locate any filecopiers")
-	}
-
-	for _, e := range entities {
-		conn, err := grpc.Dial(e.Ip+":"+strconv.Itoa(int(e.Port)), grpc.WithInsecure())
-		defer conn.Close()
-		if err == nil {
-			client := pb.NewFileCopierServiceClient(conn)
-			_, err := client.ReceiveKey(ctx, &pb.KeyRequest{Key: s.mykey, Server: s.GoServer.Registry.Identifier})
-			if err != nil {
-				log.Fatalf("Failure to receive key: %v", err)
+	if err == nil {
+		for _, e := range entities {
+			conn, err := grpc.Dial(e.Ip+":"+strconv.Itoa(int(e.Port)), grpc.WithInsecure())
+			defer conn.Close()
+			if err == nil {
+				client := pb.NewFileCopierServiceClient(conn)
+				_, err := client.ReceiveKey(ctx, &pb.KeyRequest{Key: s.mykey, Server: s.GoServer.Registry.Identifier})
+				if err != nil {
+					log.Fatalf("Failure to receive key: %v", err)
+				}
 			}
 		}
 	}
