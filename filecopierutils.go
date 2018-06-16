@@ -12,7 +12,7 @@ func makeCopyString(server, file string) string {
 		return file
 	}
 
-	return fmt.Sprintf("%v@%v", server, file)
+	return fmt.Sprintf("%v:%v", server, file)
 }
 
 func readKeys(filename string) (map[string]string, error) {

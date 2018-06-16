@@ -55,7 +55,7 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 	}
 	err = command.Wait()
 	if err != nil {
-		return nil, fmt.Errorf("Error waiting on copy: %v, %b -> %v", copyIn, copyOut, err)
+		return nil, fmt.Errorf("Error waiting on copy: %v, %v -> %v", copyIn, copyOut, err)
 	}
 
 	return &pb.CopyResponse{MillisToCopy: time.Now().Sub(t).Nanoseconds() / 1000000}, nil
