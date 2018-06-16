@@ -45,15 +45,17 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 		return &pb.CopyResponse{}, fmt.Errorf("Output %v is unable to handle this request: %v", in.OutputServer, err)
 	}
 
-	command := exec.Command(s.command, makeCopyString(in.InputServer, in.InputFile), makeCopyString(in.OutputServer, in.OutputFile))
+	copyIn := makeCopyString(in.InputServer, in.InputFile)
+	copyOut := makeCopyString(in.OutputServer, in.OutputFile)
+	command := exec.Command(s.command, copyIn, copyOut)
 	t := time.Now()
 	err = command.Start()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Error running copy: %v, %v -> %v", copyIn, copyOut, err)
 	}
 	err = command.Wait()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Error waiting on copy: %v, %b -> %v", copyIn, copyOut, err)
 	}
 
 	return &pb.CopyResponse{MillisToCopy: time.Now().Sub(t).Nanoseconds() / 1000000}, nil
