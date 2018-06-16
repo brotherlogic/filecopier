@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os/exec"
 	"time"
@@ -48,14 +49,28 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 	copyIn := makeCopyString(in.InputServer, in.InputFile)
 	copyOut := makeCopyString(in.OutputServer, in.OutputFile)
 	command := exec.Command(s.command, copyIn, copyOut)
+
+	output := ""
+	out, err := command.StderrPipe()
+	if err == nil && out != nil {
+		scanner := bufio.NewScanner(out)
+		go func() {
+			for scanner != nil && scanner.Scan() {
+				output += scanner.Text()
+			}
+			out.Close()
+		}()
+
+	}
+
 	t := time.Now()
 	err = command.Start()
 	if err != nil {
-		return nil, fmt.Errorf("Error running copy: %v, %v -> %v", copyIn, copyOut, err)
+		return nil, fmt.Errorf("Error running copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
 	err = command.Wait()
 	if err != nil {
-		return nil, fmt.Errorf("Error waiting on copy: %v, %v -> %v", copyIn, copyOut, err)
+		return nil, fmt.Errorf("Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
 
 	return &pb.CopyResponse{MillisToCopy: time.Now().Sub(t).Nanoseconds() / 1000000}, nil
