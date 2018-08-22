@@ -174,11 +174,12 @@ func main() {
 	server.Register = server
 
 	server.keySetup()
-	server.RegisterServer("filecopier", false)
-	server.RegisterRepeatingTaskNonMaster(server.shareKeys, time.Hour)
+	if server.RegisterServer("filecopier", false) {
+		server.RegisterRepeatingTaskNonMaster(server.shareKeys, time.Hour)
 
-	//Set the server name
-	server.checker = &prodChecker{server: server.Registry.Identifier}
+		//Set the server name
+		server.checker = &prodChecker{server: server.Registry.Identifier}
 
-	fmt.Printf("%v\n", server.Serve())
+		fmt.Printf("%v\n", server.Serve())
+	}
 }
