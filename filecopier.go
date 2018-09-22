@@ -175,7 +175,7 @@ func main() {
 
 	server.keySetup()
 	if server.RegisterServer("filecopier", false) {
-		server.RegisterRepeatingTaskNonMaster(server.shareKeys, time.Hour)
+		server.RegisterRepeatingTaskNonMaster(server.shareKeys, "share_keys", time.Hour)
 
 		//Set the server name
 		server.checker = &prodChecker{server: server.Registry.Identifier}
