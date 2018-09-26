@@ -32,6 +32,7 @@ func InitTestServer() *Server {
 	s := Init()
 	s.writer = &testWriter{}
 	s.checker = &testChecker{}
+	s.SkipLog = true
 	return s
 }
 
