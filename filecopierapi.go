@@ -71,6 +71,7 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 		return nil, fmt.Errorf("Error running copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
 	err = command.Wait()
+	s.Log(fmt.Sprintf("OUTPUT = %v", output))
 	if err != nil {
 		return nil, fmt.Errorf("Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
