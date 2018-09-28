@@ -64,6 +64,18 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 		}()
 
 	}
+	output2 := ""
+	out2, err2 := command.StdoutPipe()
+	if err2 == nil && out2 != nil {
+		scanner := bufio.NewScanner(out2)
+		go func() {
+			for scanner != nil && scanner.Scan() {
+				output2 += scanner.Text()
+			}
+			out2.Close()
+		}()
+
+	}
 
 	t := time.Now()
 	err = command.Start()
@@ -71,7 +83,7 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 		return nil, fmt.Errorf("Error running copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
 	err = command.Wait()
-	s.Log(fmt.Sprintf("OUTPUT = %v", output))
+	s.Log(fmt.Sprintf("OUTPUT = %v, %v", output, output2))
 	if err != nil {
 		return nil, fmt.Errorf("Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
