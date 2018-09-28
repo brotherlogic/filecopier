@@ -50,7 +50,7 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 
 	copyIn := makeCopyString(in.InputServer, in.InputFile)
 	copyOut := makeCopyString(in.OutputServer, in.OutputFile)
-	command := exec.Command(s.command, "-3", "-o", "StrictHostKeyChecking=no", copyIn, copyOut)
+	command := exec.Command(s.command, "-v", "-3", "-o", "StrictHostKeyChecking=no", copyIn, copyOut)
 
 	output := ""
 	out, err := command.StderrPipe()
