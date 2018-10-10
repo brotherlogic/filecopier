@@ -29,7 +29,7 @@ func main() {
 	}
 
 	client := pb.NewFileCopierServiceClient(conn)
-	ctx, cancel := utils.BuildContext("filecopier-cli", pbgs.ContextType_LONG)
+	ctx, cancel := utils.BuildContext("filecopier-cli", "filecopier", pbgs.ContextType_LONG)
 	defer cancel()
 
 	if os.Args[1] == "list" {
