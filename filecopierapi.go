@@ -67,10 +67,10 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 	output2 := ""
 	out2, err2 := command.StdoutPipe()
 	if err2 == nil && out2 != nil {
-		scanner := bufio.NewScanner(out2)
+		scanner2 := bufio.NewScanner(out2)
 		go func() {
-			for scanner != nil && scanner.Scan() {
-				output2 += scanner.Text()
+			for scanner2 != nil && scanner2.Scan() {
+				output2 += scanner2.Text()
 			}
 			out2.Close()
 		}()

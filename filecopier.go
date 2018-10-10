@@ -141,7 +141,13 @@ func (s *Server) Mote(ctx context.Context, master bool) error {
 
 // GetState gets the state of the server
 func (s *Server) GetState() []*pbg.State {
-	return []*pbg.State{}
+	keylist := []string{}
+	for key := range s.keys {
+		keylist = append(keylist, key)
+	}
+	return []*pbg.State{
+		&pbg.State{Key: "keys", Text: fmt.Sprintf("%v", keylist)},
+	}
 }
 
 func (s *Server) shareKeys(ctx context.Context) {
