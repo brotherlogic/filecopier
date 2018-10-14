@@ -9,6 +9,7 @@ import (
 	"golang.org/x/net/context"
 
 	pb "github.com/brotherlogic/filecopier/proto"
+	pbt "github.com/brotherlogic/tracer/proto"
 )
 
 // ReceiveKey takes a key and adds it
@@ -36,15 +37,18 @@ func (s *Server) Accepts(ctx context.Context, in *pb.AcceptsRequest) (*pb.Accept
 
 // Copy copies over a key
 func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse, error) {
+	ctx = s.LogTrace(ctx, "Copy", time.Now(), pbt.Milestone_START_FUNCTION)
 	s.Log(fmt.Sprintf("COPY: %v, %v to %v, %v", in.InputServer, in.InputFile, in.OutputServer, in.OutputFile))
 
 	err := s.checker.check(in.InputServer)
 	if err != nil {
+		s.LogTrace(ctx, "Copy", time.Now(), pbt.Milestone_END_FUNCTION)
 		return &pb.CopyResponse{}, fmt.Errorf("Input %v is unable to handle this request: %v", in.InputServer, err)
 	}
 
 	err = s.checker.check(in.OutputServer)
 	if err != nil {
+		s.LogTrace(ctx, "Copy", time.Now(), pbt.Milestone_END_FUNCTION)
 		return &pb.CopyResponse{}, fmt.Errorf("Output %v is unable to handle this request: %v", in.OutputServer, err)
 	}
 
@@ -80,14 +84,17 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 	t := time.Now()
 	err = command.Start()
 	if err != nil {
+		s.LogTrace(ctx, "Copy", time.Now(), pbt.Milestone_END_FUNCTION)
 		return nil, fmt.Errorf("Error running copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
 	err = command.Wait()
 	s.Log(fmt.Sprintf("OUTPUT = %v, %v", output, output2))
 	if err != nil {
+		s.LogTrace(ctx, "Copy", time.Now(), pbt.Milestone_END_FUNCTION)
 		return nil, fmt.Errorf("Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
 
 	s.Log(fmt.Sprintf("OUTPUT = %v", output))
+	s.LogTrace(ctx, "Copy", time.Now(), pbt.Milestone_END_FUNCTION)
 	return &pb.CopyResponse{MillisToCopy: time.Now().Sub(t).Nanoseconds() / 1000000}, nil
 }
