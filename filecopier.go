@@ -77,7 +77,7 @@ func (p *prodChecker) check(server string) error {
 
 	}
 
-	return fmt.Errorf("Server %v was not found! (we looked in %v)", server, list)
+	return fmt.Errorf("Server %v was not found!", server)
 }
 
 //Server main server type
@@ -142,7 +142,12 @@ func (s *Server) Mote(ctx context.Context, master bool) error {
 
 // GetState gets the state of the server
 func (s *Server) GetState() []*pbg.State {
+	keylist := []string{}
+	for key := range s.keys {
+		keylist = append(keylist, key)
+	}
 	return []*pbg.State{
+		&pbg.State{Key: "keys", Text: fmt.Sprintf("%v", keylist)},
 		&pbg.State{Key: "copies", Value: s.copies},
 	}
 }
