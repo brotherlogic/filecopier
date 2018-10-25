@@ -6,9 +6,8 @@ import (
 	"os/exec"
 	"time"
 
-	"golang.org/x/net/context"
-
 	pb "github.com/brotherlogic/filecopier/proto"
+	"golang.org/x/net/context"
 )
 
 // ReceiveKey takes a key and adds it
@@ -37,6 +36,7 @@ func (s *Server) Accepts(ctx context.Context, in *pb.AcceptsRequest) (*pb.Accept
 // Copy copies over a key
 func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse, error) {
 	s.Log(fmt.Sprintf("COPY: %v, %v to %v, %v", in.InputServer, in.InputFile, in.OutputServer, in.OutputFile))
+	s.copies++
 
 	err := s.checker.check(in.InputServer)
 	if err != nil {

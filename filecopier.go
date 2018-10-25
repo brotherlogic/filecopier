@@ -8,15 +8,14 @@ import (
 	"strconv"
 	"time"
 
+	pbd "github.com/brotherlogic/discovery/proto"
+	pb "github.com/brotherlogic/filecopier/proto"
 	"github.com/brotherlogic/goserver"
+	pbg "github.com/brotherlogic/goserver/proto"
 	"github.com/brotherlogic/goserver/utils"
 	"github.com/brotherlogic/keystore/client"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-
-	pbd "github.com/brotherlogic/discovery/proto"
-	pb "github.com/brotherlogic/filecopier/proto"
-	pbg "github.com/brotherlogic/goserver/proto"
 )
 
 type writer interface {
@@ -89,6 +88,7 @@ type Server struct {
 	writer  writer
 	command string
 	mykey   string
+	copies  int64
 }
 
 // Init builds the server
@@ -100,6 +100,7 @@ func Init() *Server {
 		&prodWriter{file: "/home/simon/.ssh/authorized_keys"},
 		"/usr/bin/scp",
 		"madeup",
+		int64(0),
 	}
 	return s
 }
@@ -141,7 +142,9 @@ func (s *Server) Mote(ctx context.Context, master bool) error {
 
 // GetState gets the state of the server
 func (s *Server) GetState() []*pbg.State {
-	return []*pbg.State{}
+	return []*pbg.State{
+		&pbg.State{Key: "copies", Value: s.copies},
+	}
 }
 
 func (s *Server) shareKeys(ctx context.Context) {
