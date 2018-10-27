@@ -98,7 +98,7 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 		return nil, fmt.Errorf("Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
 
-	s.lastError = fmt.Sprintf("DONE %v", output)
+	s.lastError = fmt.Sprintf("DONE %v -> %v", output, output2)
 	s.Log(fmt.Sprintf("OUTPUT = %v", output))
 	s.LogTrace(ctx, "Copy", time.Now(), pbt.Milestone_END_FUNCTION)
 	return &pb.CopyResponse{MillisToCopy: time.Now().Sub(t).Nanoseconds() / 1000000}, nil
