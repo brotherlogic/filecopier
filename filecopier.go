@@ -83,12 +83,13 @@ func (p *prodChecker) check(server string) error {
 //Server main server type
 type Server struct {
 	*goserver.GoServer
-	keys    map[string]string
-	checker checker
-	writer  writer
-	command string
-	mykey   string
-	copies  int64
+	keys      map[string]string
+	checker   checker
+	writer    writer
+	command   string
+	mykey     string
+	copies    int64
+	lastError string
 }
 
 // Init builds the server
@@ -101,6 +102,7 @@ func Init() *Server {
 		"/usr/bin/scp",
 		"madeup",
 		int64(0),
+		"",
 	}
 	return s
 }
@@ -149,6 +151,7 @@ func (s *Server) GetState() []*pbg.State {
 	return []*pbg.State{
 		&pbg.State{Key: "keys", Text: fmt.Sprintf("%v", keylist)},
 		&pbg.State{Key: "copies", Value: s.copies},
+		&pbg.State{Key: "last_error", Text: s.lastError},
 	}
 }
 
