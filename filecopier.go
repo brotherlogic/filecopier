@@ -41,7 +41,7 @@ type prodChecker struct {
 func (p *prodChecker) check(server string) error {
 	conn, err := grpc.Dial(utils.Discover, grpc.WithInsecure())
 	if err != nil {
-		return err
+		return fmt.Errorf("Error dialing discover: %v", err)
 	}
 
 	defer conn.Close()

@@ -42,7 +42,7 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 
 	err := s.checker.check(in.InputServer)
 	if err != nil {
-		s.lastError = fmt.Sprintf("%v", err)
+		s.lastError = fmt.Sprintf("IN: %v", err)
 		s.LogTrace(ctx, "Copy", time.Now(), pbt.Milestone_END_FUNCTION)
 		s.Log(fmt.Sprintf("Failed to check %v", in.InputServer))
 		return &pb.CopyResponse{}, fmt.Errorf("Input %v is unable to handle this request: %v", in.InputServer, err)
@@ -50,7 +50,7 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 
 	err = s.checker.check(in.OutputServer)
 	if err != nil {
-		s.lastError = fmt.Sprintf("%v", err)
+		s.lastError = fmt.Sprintf("OUT: %v", err)
 		s.LogTrace(ctx, "Copy", time.Now(), pbt.Milestone_END_FUNCTION)
 		s.Log(fmt.Sprintf("Failed to check %v", in.OutputServer))
 		return &pb.CopyResponse{}, fmt.Errorf("Output %v is unable to handle this request: %v", in.OutputServer, err)
@@ -88,14 +88,14 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 	t := time.Now()
 	err = command.Start()
 	if err != nil {
-		s.lastError = fmt.Sprintf("%v", err)
+		s.lastError = fmt.Sprintf("CS %v", err)
 		s.LogTrace(ctx, "Copy", time.Now(), pbt.Milestone_END_FUNCTION)
 		return nil, fmt.Errorf("Error running copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
 	err = command.Wait()
 	s.Log(fmt.Sprintf("OUTPUT = %v, %v", output, output2))
 	if err != nil {
-		s.lastError = fmt.Sprintf("%v", err)
+		s.lastError = fmt.Sprintf("CW %v", err)
 		s.LogTrace(ctx, "Copy", time.Now(), pbt.Milestone_END_FUNCTION)
 		return nil, fmt.Errorf("Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
