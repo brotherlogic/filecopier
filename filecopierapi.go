@@ -44,6 +44,7 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 	if err != nil {
 		s.lastError = fmt.Sprintf("%v", err)
 		s.LogTrace(ctx, "Copy", time.Now(), pbt.Milestone_END_FUNCTION)
+		s.Log(fmt.Sprintf("Failed to check %v", in.InputServer))
 		return &pb.CopyResponse{}, fmt.Errorf("Input %v is unable to handle this request: %v", in.InputServer, err)
 	}
 
@@ -51,6 +52,7 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 	if err != nil {
 		s.lastError = fmt.Sprintf("%v", err)
 		s.LogTrace(ctx, "Copy", time.Now(), pbt.Milestone_END_FUNCTION)
+		s.Log(fmt.Sprintf("Failed to check %v", in.OutputServer))
 		return &pb.CopyResponse{}, fmt.Errorf("Output %v is unable to handle this request: %v", in.OutputServer, err)
 	}
 

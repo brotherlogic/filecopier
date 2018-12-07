@@ -50,20 +50,21 @@ func (p *prodChecker) check(server string) error {
 	defer cancel()
 	list, err := client.ListAllServices(ctx, &pbd.ListRequest{})
 	if err != nil {
-		return err
+		return fmt.Errorf("Failled to list all services: %v", err)
 	}
 
 	for _, cl := range list.Services.GetServices() {
 		if cl.GetIdentifier() == server && cl.GetName() == "filecopier" {
 			conn, err := grpc.Dial(cl.GetIp()+":"+strconv.Itoa(int(cl.GetPort())), grpc.WithInsecure())
 			if err != nil {
-				return err
+				return fmt.Errorf("Failed to dial: %v", err)
 			}
 
 			defer conn.Close()
 			client := pb.NewFileCopierServiceClient(conn)
 			accepts, err := client.Accepts(ctx, &pb.AcceptsRequest{})
 			if err != nil {
+				fmt.Errorf("Failed on accept: %v", err)
 				return err
 			}
 
