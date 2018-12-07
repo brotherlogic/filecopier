@@ -46,7 +46,7 @@ func (p *prodChecker) check(server string) error {
 
 	defer conn.Close()
 	client := pbd.NewDiscoveryServiceClient(conn)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 	list, err := client.ListAllServices(ctx, &pbd.ListRequest{})
 	if err != nil {
