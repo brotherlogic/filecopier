@@ -40,7 +40,7 @@ func (s *Server) reduce() {
 
 // Copy copies over a key
 func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse, error) {
-	if s.ccopies > 2 {
+	if s.ccopies > 0 {
 		return nil, fmt.Errorf("Too many concurrent copies")
 	}
 	s.ccopies++
