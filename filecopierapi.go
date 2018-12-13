@@ -34,8 +34,18 @@ func (s *Server) Accepts(ctx context.Context, in *pb.AcceptsRequest) (*pb.Accept
 	return resp, nil
 }
 
+func (s *Server) reduce() {
+	s.ccopies--
+}
+
 // Copy copies over a key
 func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse, error) {
+	if s.ccopies > 2 {
+		return nil, fmt.Errorf("Too many concurrent copies")
+	}
+	s.ccopies++
+	defer s.reduce()
+
 	ctx = s.LogTrace(ctx, "Copy", time.Now(), pbt.Milestone_START_FUNCTION)
 	s.Log(fmt.Sprintf("COPY: %v, %v to %v, %v", in.InputServer, in.InputFile, in.OutputServer, in.OutputFile))
 	s.copies++

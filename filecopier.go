@@ -91,6 +91,7 @@ type Server struct {
 	mykey     string
 	copies    int64
 	lastError string
+	ccopies   int64
 }
 
 // Init builds the server
@@ -104,6 +105,7 @@ func Init() *Server {
 		"madeup",
 		int64(0),
 		"",
+		int64(0),
 	}
 	return s
 }
@@ -153,6 +155,7 @@ func (s *Server) GetState() []*pbg.State {
 		&pbg.State{Key: "keys", Text: fmt.Sprintf("%v", keylist)},
 		&pbg.State{Key: "copies", Value: s.copies},
 		&pbg.State{Key: "last_error", Text: s.lastError},
+		&pbg.State{Key: "con_copies", Value: s.ccopies},
 	}
 }
 
