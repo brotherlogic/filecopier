@@ -84,14 +84,16 @@ func (p *prodChecker) check(server string) error {
 //Server main server type
 type Server struct {
 	*goserver.GoServer
-	keys      map[string]string
-	checker   checker
-	writer    writer
-	command   string
-	mykey     string
-	copies    int64
-	lastError string
-	ccopies   int64
+	keys            map[string]string
+	checker         checker
+	writer          writer
+	command         string
+	mykey           string
+	copies          int64
+	lastError       string
+	ccopies         int64
+	lastCopyTime    time.Time
+	lastCopyDetails string
 }
 
 // Init builds the server
@@ -106,6 +108,8 @@ func Init() *Server {
 		int64(0),
 		"",
 		int64(0),
+		time.Unix(1, 0),
+		"",
 	}
 	return s
 }

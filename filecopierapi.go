@@ -43,6 +43,10 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 	if s.ccopies > 0 {
 		return nil, fmt.Errorf("Too many concurrent copies")
 	}
+
+	s.lastCopyTime = time.Now()
+	s.lastCopyDetails = fmt.Sprintf("%v from %v to %v", in.InputFile, in.InputServer, in.OutputFile)
+
 	s.ccopies++
 	defer s.reduce()
 
