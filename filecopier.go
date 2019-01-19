@@ -195,12 +195,15 @@ func main() {
 	server.Register = server
 
 	server.keySetup()
-	if server.RegisterServer("filecopier", false) != nil {
+	err := server.RegisterServer("filecopier", false)
+	if err == nil {
 		server.RegisterRepeatingTaskNonMaster(server.shareKeys, "share_keys", time.Hour)
 
 		//Set the server name
 		server.checker = &prodChecker{server: server.Registry.Identifier}
 
 		fmt.Printf("%v\n", server.Serve())
+	} else {
+		log.Fatalf("Unable to register: %v", err)
 	}
 }
