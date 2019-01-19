@@ -94,6 +94,7 @@ type Server struct {
 	ccopies         int64
 	lastCopyTime    time.Time
 	lastCopyDetails string
+	copyTime        time.Duration
 }
 
 // Init builds the server
@@ -110,6 +111,7 @@ func Init() *Server {
 		int64(0),
 		time.Unix(1, 0),
 		"",
+		0,
 	}
 	return s
 }
@@ -162,6 +164,7 @@ func (s *Server) GetState() []*pbg.State {
 		&pbg.State{Key: "con_copies", Value: s.ccopies},
 		&pbg.State{Key: "last_copy", Text: s.lastCopyDetails},
 		&pbg.State{Key: "last_copy_time", TimeValue: s.lastCopyTime.Unix()},
+		&pbg.State{Key: "copy_time", TimeDuration: s.copyTime.Nanoseconds()},
 	}
 }
 
