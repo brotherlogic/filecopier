@@ -195,7 +195,7 @@ func main() {
 	server.Register = server
 
 	server.keySetup()
-	if server.RegisterServer("filecopier", false) {
+	if server.RegisterServer("filecopier", false) != nil {
 		server.RegisterRepeatingTaskNonMaster(server.shareKeys, "share_keys", time.Hour)
 
 		//Set the server name
