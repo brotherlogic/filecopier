@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"strconv"
+	"sync"
 	"time"
 
 	pbd "github.com/brotherlogic/discovery/proto"
@@ -78,7 +79,7 @@ func (p *prodChecker) check(server string) error {
 
 	}
 
-	return fmt.Errorf("Server %v was not found!", server)
+	return fmt.Errorf("Server %v was not found", server)
 }
 
 //Server main server type
@@ -92,6 +93,7 @@ type Server struct {
 	copies          int64
 	lastError       string
 	ccopies         int64
+	ccopiesMutex    *sync.Mutex
 	lastCopyTime    time.Time
 	lastCopyDetails string
 	copyTime        time.Duration
@@ -109,6 +111,7 @@ func Init() *Server {
 		int64(0),
 		"",
 		int64(0),
+		&sync.Mutex{},
 		time.Unix(1, 0),
 		"",
 		0,
@@ -146,6 +149,11 @@ func (s *Server) ReportHealth() bool {
 	return true
 }
 
+// Shutdown shutsdown the server
+func (s *Server) Shutdown(ctx context.Context) error {
+	return nil
+}
+
 // Mote promotes/demotes this server
 func (s *Server) Mote(ctx context.Context, master bool) error {
 	return nil
@@ -153,6 +161,8 @@ func (s *Server) Mote(ctx context.Context, master bool) error {
 
 // GetState gets the state of the server
 func (s *Server) GetState() []*pbg.State {
+	s.ccopiesMutex.Lock()
+	defer s.ccopiesMutex.Unlock()
 	keylist := []string{}
 	for key := range s.keys {
 		keylist = append(keylist, key)

@@ -35,12 +35,16 @@ func (s *Server) Accepts(ctx context.Context, in *pb.AcceptsRequest) (*pb.Accept
 }
 
 func (s *Server) reduce() {
+	s.ccopiesMutex.Lock()
 	s.ccopies--
+	s.ccopiesMutex.Unlock()
 }
 
 // Copy copies over a key
 func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse, error) {
+	s.ccopiesMutex.Lock()
 	if s.ccopies > 0 {
+		s.ccopiesMutex.Unlock()
 		return nil, fmt.Errorf("Too many concurrent copies")
 	}
 
@@ -48,6 +52,7 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 	s.lastCopyDetails = fmt.Sprintf("%v from %v to %v", in.InputFile, in.InputServer, in.OutputFile)
 
 	s.ccopies++
+	s.ccopiesMutex.Unlock()
 	defer s.reduce()
 
 	ctx = s.LogTrace(ctx, "Copy", time.Now(), pbt.Milestone_START_FUNCTION)
