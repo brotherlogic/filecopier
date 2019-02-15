@@ -86,6 +86,7 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 		go func() {
 			for scanner != nil && scanner.Scan() {
 				output += scanner.Text()
+				s.Log(fmt.Sprintf("SCANERR: %v", output))
 			}
 			out.Close()
 		}()
@@ -98,6 +99,7 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 		go func() {
 			for scanner2 != nil && scanner2.Scan() {
 				output2 += scanner2.Text()
+				s.Log(fmt.Sprintf("SCANOUT: %v", output))
 			}
 			out2.Close()
 		}()
