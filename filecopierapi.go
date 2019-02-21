@@ -7,7 +7,6 @@ import (
 	"time"
 
 	pb "github.com/brotherlogic/filecopier/proto"
-	pbt "github.com/brotherlogic/tracer/proto"
 	"golang.org/x/net/context"
 )
 
@@ -55,14 +54,12 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 	s.ccopiesMutex.Unlock()
 	defer s.reduce()
 
-	ctx = s.LogTrace(ctx, "Copy", time.Now(), pbt.Milestone_START_FUNCTION)
 	s.Log(fmt.Sprintf("COPY: %v, %v to %v, %v", in.InputServer, in.InputFile, in.OutputServer, in.OutputFile))
 	s.copies++
 
 	err := s.checker.check(in.InputServer)
 	if err != nil {
 		s.lastError = fmt.Sprintf("IN: %v", err)
-		s.LogTrace(ctx, "Copy", time.Now(), pbt.Milestone_END_FUNCTION)
 		s.Log(fmt.Sprintf("Failed to check %v", in.InputServer))
 		return &pb.CopyResponse{}, fmt.Errorf("Input %v is unable to handle this request: %v", in.InputServer, err)
 	}
@@ -70,7 +67,6 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 	err = s.checker.check(in.OutputServer)
 	if err != nil {
 		s.lastError = fmt.Sprintf("OUT: %v", err)
-		s.LogTrace(ctx, "Copy", time.Now(), pbt.Milestone_END_FUNCTION)
 		s.Log(fmt.Sprintf("Failed to check %v", in.OutputServer))
 		return &pb.CopyResponse{}, fmt.Errorf("Output %v is unable to handle this request: %v", in.OutputServer, err)
 	}
@@ -110,20 +106,17 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 	err = command.Start()
 	if err != nil {
 		s.lastError = fmt.Sprintf("CS %v", err)
-		s.LogTrace(ctx, "Copy", time.Now(), pbt.Milestone_END_FUNCTION)
 		return nil, fmt.Errorf("Error running copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
 	err = command.Wait()
 	s.Log(fmt.Sprintf("OUTPUT = %v, %v", output, output2))
 	if err != nil {
 		s.lastError = fmt.Sprintf("CW %v", err)
-		s.LogTrace(ctx, "Copy", time.Now(), pbt.Milestone_END_FUNCTION)
 		return nil, fmt.Errorf("Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
 
 	s.copyTime = time.Now().Sub(t)
 	s.lastError = fmt.Sprintf("DONE %v -> %v", output, output2)
 	s.Log(fmt.Sprintf("OUTPUT = %v", output))
-	s.LogTrace(ctx, "Copy", time.Now(), pbt.Milestone_END_FUNCTION)
 	return &pb.CopyResponse{MillisToCopy: time.Now().Sub(t).Nanoseconds() / 1000000}, nil
 }
