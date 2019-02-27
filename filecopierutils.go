@@ -5,7 +5,21 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	pb "github.com/brotherlogic/filecopier/proto"
+	"golang.org/x/net/context"
 )
+
+func (s *Server) runQueue(ctx context.Context) {
+	for _, entry := range s.queue {
+		if entry.resp.Status == pb.CopyStatus_IN_QUEUE {
+			entry.resp.Status = pb.CopyStatus_IN_PROGRESS
+			s.runCopy(ctx, entry.req)
+			entry.resp.Status = pb.CopyStatus_COMPLETE
+			return
+		}
+	}
+}
 
 func makeCopyString(server, file string) string {
 	if len(server) == 0 {
