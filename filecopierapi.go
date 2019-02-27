@@ -41,7 +41,16 @@ func (s *Server) reduce() {
 
 // QueueCopy copies over a key using a queue
 func (s *Server) QueueCopy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse, error) {
-	return nil, fmt.Errorf("Unimplemented")
+	for _, q := range s.queue {
+		if in.InputServer == q.req.InputServer && in.OutputServer == q.req.OutputServer &&
+			in.InputFile == q.req.InputFile && in.OutputFile == q.req.OutputFile {
+			return q.resp, nil
+		}
+	}
+
+	r := &pb.CopyResponse{Status: pb.CopyStatus_IN_QUEUE, TimeInQueue: time.Now().UnixNano()}
+	s.queue = append(s.queue, &queueEntry{req: in, resp: r})
+	return r, nil
 }
 
 // Copy copies over a key
