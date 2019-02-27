@@ -10,7 +10,6 @@ import (
 	"google.golang.org/grpc"
 
 	pb "github.com/brotherlogic/filecopier/proto"
-	pbgs "github.com/brotherlogic/goserver/proto"
 
 	//Needed to pull in gzip encoding init
 	_ "google.golang.org/grpc/encoding/gzip"
@@ -29,7 +28,7 @@ func main() {
 	}
 
 	client := pb.NewFileCopierServiceClient(conn)
-	ctx, cancel := utils.BuildContext("filecopier-cli", "filecopier", pbgs.ContextType_LONG)
+	ctx, cancel := utils.BuildContext("filecopier-cli", "filecopier")
 	defer cancel()
 
 	if os.Args[1] == "list" {

@@ -39,6 +39,11 @@ func (s *Server) reduce() {
 	s.ccopiesMutex.Unlock()
 }
 
+// QueueCopy copies over a key using a queue
+func (s *Server) QueueCopy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse, error) {
+	return nil, fmt.Errorf("Unimplemented")
+}
+
 // Copy copies over a key
 func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse, error) {
 	s.ccopiesMutex.Lock()
@@ -88,19 +93,6 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 		}()
 
 	}
-	output2 := ""
-	out2, err2 := command.StdoutPipe()
-	if err2 == nil && out2 != nil {
-		scanner2 := bufio.NewScanner(out2)
-		go func() {
-			for scanner2 != nil && scanner2.Scan() {
-				output2 += scanner2.Text()
-				s.Log(fmt.Sprintf("SCANOUT: %v", output))
-			}
-			out2.Close()
-		}()
-
-	}
 
 	t := time.Now()
 	err = command.Start()
@@ -109,14 +101,13 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 		return nil, fmt.Errorf("Error running copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
 	err = command.Wait()
-	s.Log(fmt.Sprintf("OUTPUT = %v, %v", output, output2))
+
 	if err != nil {
 		s.lastError = fmt.Sprintf("CW %v", err)
 		return nil, fmt.Errorf("Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
 
 	s.copyTime = time.Now().Sub(t)
-	s.lastError = fmt.Sprintf("DONE %v -> %v", output, output2)
-	s.Log(fmt.Sprintf("OUTPUT = %v", output))
+	s.lastError = fmt.Sprintf("DONE %v", output)
 	return &pb.CopyResponse{MillisToCopy: time.Now().Sub(t).Nanoseconds() / 1000000}, nil
 }

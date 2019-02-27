@@ -2,6 +2,13 @@ syntax = "proto3";
 
 package filecopier;
 
+enum CopyStatus {
+  UNKNOWN = 0;
+  IN_QUEUE = 1;
+  IN_PROGRESS = 2;
+  COMPLETE = 3;
+}
+
 message CopyRequest {
   string input_file = 1;
   string input_server = 2;
@@ -11,6 +18,7 @@ message CopyRequest {
 
 message CopyResponse {
   int64 millis_to_copy = 1;
+  CopyStatus status = 2;
 }
 
 message KeyRequest {
@@ -27,6 +35,7 @@ message AcceptsResponse {
 }
 
 service FileCopierService {
+  rpc QueueCopy(CopyRequest) returns (CopyResponse) {};
   rpc Copy(CopyRequest) returns (CopyResponse) {};
   rpc ReceiveKey(KeyRequest) returns (KeyResponse) {};
   rpc Accepts(AcceptsRequest) returns (AcceptsResponse) {};
