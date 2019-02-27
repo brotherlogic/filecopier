@@ -14,7 +14,10 @@ func (s *Server) runQueue(ctx context.Context) {
 	for _, entry := range s.queue {
 		if entry.resp.Status == pb.CopyStatus_IN_QUEUE {
 			entry.resp.Status = pb.CopyStatus_IN_PROGRESS
-			s.runCopy(ctx, entry.req)
+			err := s.runCopy(ctx, entry.req)
+			if err != nil {
+				entry.resp.Error = fmt.Sprintf("%v", err)
+			}
 			entry.resp.Status = pb.CopyStatus_COMPLETE
 			return
 		}
