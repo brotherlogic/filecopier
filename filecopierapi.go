@@ -39,6 +39,11 @@ func (s *Server) reduce() {
 	s.ccopiesMutex.Unlock()
 }
 
+// QueueCopy copies over a key using a queue
+func (s *Server) QueueCopy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse, error) {
+	return nil, fmt.Errorf("Unimplemented")
+}
+
 // Copy copies over a key
 func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse, error) {
 	s.ccopiesMutex.Lock()

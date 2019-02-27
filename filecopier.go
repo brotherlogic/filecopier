@@ -163,18 +163,11 @@ func (s *Server) Mote(ctx context.Context, master bool) error {
 func (s *Server) GetState() []*pbg.State {
 	s.ccopiesMutex.Lock()
 	defer s.ccopiesMutex.Unlock()
-	keylist := []string{}
-	for key := range s.keys {
-		keylist = append(keylist, key)
-	}
 	return []*pbg.State{
-		&pbg.State{Key: "keys", Text: fmt.Sprintf("%v", keylist)},
+		&pbg.State{Key: "keys", Value: int64(len(s.keys))},
 		&pbg.State{Key: "copies", Value: s.copies},
-		&pbg.State{Key: "last_error", Text: s.lastError},
 		&pbg.State{Key: "con_copies", Value: s.ccopies},
 		&pbg.State{Key: "last_copy", Text: s.lastCopyDetails},
-		&pbg.State{Key: "last_copy_time", TimeValue: s.lastCopyTime.Unix()},
-		&pbg.State{Key: "copy_time", TimeDuration: s.copyTime.Nanoseconds()},
 	}
 }
 
