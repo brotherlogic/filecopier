@@ -61,11 +61,19 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 		return nil, fmt.Errorf("Too many concurrent copies")
 	}
 
-	s.lastCopyTime = time.Now()
-	s.lastCopyDetails = fmt.Sprintf("%v from %v to %v", in.InputFile, in.InputServer, in.OutputFile)
-
 	s.ccopies++
 	s.ccopiesMutex.Unlock()
+
+	t := time.Now()
+	err := s.runCopy(ctx, in)
+	defer s.reduce()
+	return &pb.CopyResponse{MillisToCopy: time.Now().Sub(t).Nanoseconds() / 1000000}, err
+}
+
+func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
+	s.lastCopyTime = time.Now()
+	s.lastCopyDetails = fmt.Sprintf("%v from %v to %v", in.InputFile, in.InputServer, in.OutputFile)
+	s.ccopies++
 	defer s.reduce()
 
 	s.Log(fmt.Sprintf("COPY: %v, %v to %v, %v", in.InputServer, in.InputFile, in.OutputServer, in.OutputFile))
@@ -75,14 +83,14 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 	if err != nil {
 		s.lastError = fmt.Sprintf("IN: %v", err)
 		s.Log(fmt.Sprintf("Failed to check %v", in.InputServer))
-		return &pb.CopyResponse{}, fmt.Errorf("Input %v is unable to handle this request: %v", in.InputServer, err)
+		return fmt.Errorf("Input %v is unable to handle this request: %v", in.InputServer, err)
 	}
 
 	err = s.checker.check(in.OutputServer)
 	if err != nil {
 		s.lastError = fmt.Sprintf("OUT: %v", err)
 		s.Log(fmt.Sprintf("Failed to check %v", in.OutputServer))
-		return &pb.CopyResponse{}, fmt.Errorf("Output %v is unable to handle this request: %v", in.OutputServer, err)
+		return fmt.Errorf("Output %v is unable to handle this request: %v", in.OutputServer, err)
 	}
 
 	copyIn := makeCopyString(in.InputServer, in.InputFile)
@@ -103,20 +111,18 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 
 	}
 
-	t := time.Now()
 	err = command.Start()
 	if err != nil {
 		s.lastError = fmt.Sprintf("CS %v", err)
-		return nil, fmt.Errorf("Error running copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
+		return fmt.Errorf("Error running copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
 	err = command.Wait()
 
 	if err != nil {
 		s.lastError = fmt.Sprintf("CW %v", err)
-		return nil, fmt.Errorf("Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
+		return fmt.Errorf("Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
 
-	s.copyTime = time.Now().Sub(t)
 	s.lastError = fmt.Sprintf("DONE %v", output)
-	return &pb.CopyResponse{MillisToCopy: time.Now().Sub(t).Nanoseconds() / 1000000}, nil
+	return nil
 }

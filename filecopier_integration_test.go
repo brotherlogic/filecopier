@@ -45,4 +45,17 @@ func TestQueuedCopy(t *testing.T) {
 	if r2.TimeInQueue != r.TimeInQueue {
 		t.Errorf("Not returning the same copy")
 	}
+
+	s.runQueue(context.Background())
+
+	r3, err := s.QueueCopy(context.Background(), &pb.CopyRequest{InputFile: fmt.Sprintf("%v/test.txt", dir), OutputFile: fmt.Sprintf("%v/testout.txt", dir)})
+
+	if err != nil {
+		t.Fatalf("Error queueing copy: %v", err)
+	}
+
+	if r3.Status != pb.CopyStatus_COMPLETE {
+		t.Errorf("Copy has not run: %v", r3)
+	}
+
 }
