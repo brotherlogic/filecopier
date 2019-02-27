@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"testing"
+	"time"
 
 	pb "github.com/brotherlogic/filecopier/proto"
 )
@@ -20,9 +21,28 @@ func TestQueuedCopy(t *testing.T) {
 
 	dir, _ := os.Getwd()
 
-	_, err := s.QueueCopy(context.Background(), &pb.CopyRequest{InputFile: fmt.Sprintf("%v/test.txt", dir), OutputFile: fmt.Sprintf("%v/testout.txt", dir)})
+	r, err := s.QueueCopy(context.Background(), &pb.CopyRequest{InputFile: fmt.Sprintf("%v/test.txt", dir), OutputFile: fmt.Sprintf("%v/testout.txt", dir)})
 
-	if err == nil {
-		t.Errorf("Should have failed")
+	if err != nil {
+		t.Fatalf("Error queueing copy: %v", err)
+	}
+
+	if r.Status != pb.CopyStatus_IN_QUEUE {
+		t.Errorf("Bad status respnse: %v", r.Status)
+	}
+
+	time.Sleep(time.Second)
+	r2, err := s.QueueCopy(context.Background(), &pb.CopyRequest{InputFile: fmt.Sprintf("%v/test.txt", dir), OutputFile: fmt.Sprintf("%v/testout.txt", dir)})
+
+	if err != nil {
+		t.Fatalf("Error queueing copy: %v", err)
+	}
+
+	if r2.Status != pb.CopyStatus_IN_QUEUE {
+		t.Errorf("Copy has changed status: %v", r2.Status)
+	}
+
+	if r2.TimeInQueue != r.TimeInQueue {
+		t.Errorf("Not returning the same copy")
 	}
 }

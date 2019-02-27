@@ -19,6 +19,7 @@ message CopyRequest {
 message CopyResponse {
   int64 millis_to_copy = 1;
   CopyStatus status = 2;
+  int64 time_in_queue = 3;
 }
 
 message KeyRequest {

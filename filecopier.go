@@ -19,6 +19,11 @@ import (
 	"google.golang.org/grpc"
 )
 
+type queueEntry struct {
+	req  *pb.CopyRequest
+	resp *pb.CopyResponse
+}
+
 type writer interface {
 	writeKeys(keys map[string]string) error
 }
@@ -97,6 +102,7 @@ type Server struct {
 	lastCopyTime    time.Time
 	lastCopyDetails string
 	copyTime        time.Duration
+	queue           []*queueEntry
 }
 
 // Init builds the server
@@ -115,6 +121,7 @@ func Init() *Server {
 		time.Unix(1, 0),
 		"",
 		0,
+		make([]*queueEntry, 0),
 	}
 	return s
 }
@@ -168,6 +175,7 @@ func (s *Server) GetState() []*pbg.State {
 		&pbg.State{Key: "copies", Value: s.copies},
 		&pbg.State{Key: "con_copies", Value: s.ccopies},
 		&pbg.State{Key: "last_copy", Text: s.lastCopyDetails},
+		&pbg.State{Key: "queued", Value: int64(len(s.queue))},
 	}
 }
 
