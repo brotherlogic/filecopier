@@ -184,6 +184,7 @@ func (s *Server) GetState() []*pbg.State {
 		&pbg.State{Key: "last_copy", Text: s.lastCopyDetails},
 		&pbg.State{Key: "queued", Value: int64(len(s.queue))},
 		&pbg.State{Key: "waiting", Value: inQueue},
+		&pbg.State{Key: "copy_time", TimeDuration: s.copyTime.Nanoseconds()},
 	}
 }
 
