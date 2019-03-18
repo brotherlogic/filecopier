@@ -104,7 +104,7 @@ func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
 		go func() {
 			for scanner != nil && scanner.Scan() {
 				output += scanner.Text()
-				s.Log(fmt.Sprintf("SCANERR: %v", output))
+				s.currout = output
 			}
 			out.Close()
 		}()
