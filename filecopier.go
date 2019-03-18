@@ -103,6 +103,7 @@ type Server struct {
 	lastCopyDetails string
 	copyTime        time.Duration
 	queue           []*queueEntry
+	currout         string
 }
 
 // Init builds the server
@@ -122,6 +123,7 @@ func Init() *Server {
 		"",
 		0,
 		make([]*queueEntry, 0),
+		"",
 	}
 	return s
 }
@@ -185,6 +187,7 @@ func (s *Server) GetState() []*pbg.State {
 		&pbg.State{Key: "queued", Value: int64(len(s.queue))},
 		&pbg.State{Key: "waiting", Value: inQueue},
 		&pbg.State{Key: "copy_time", TimeDuration: s.copyTime.Nanoseconds()},
+		&pbg.State{Key: "current_output", Text: s.currout},
 	}
 }
 
