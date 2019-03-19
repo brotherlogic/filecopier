@@ -20,8 +20,9 @@ import (
 )
 
 type queueEntry struct {
-	req  *pb.CopyRequest
-	resp *pb.CopyResponse
+	req       *pb.CopyRequest
+	resp      *pb.CopyResponse
+	timeAdded time.Time
 }
 
 type writer interface {
@@ -206,6 +207,17 @@ func (s *Server) shareKeys(ctx context.Context) {
 	}
 }
 
+func (s *Server) cleanQueue(ctx context.Context) {
+	newQueue := s.queue
+	s.queue = nil
+
+	for _, elem := range newQueue {
+		if time.Now().Sub(elem.timeAdded) < time.Minute*5 {
+			s.queue = append(s.queue, elem)
+		}
+	}
+}
+
 func main() {
 	var quiet = flag.Bool("quiet", false, "Show all output")
 	flag.Parse()
@@ -225,6 +237,7 @@ func main() {
 	if err == nil {
 		server.RegisterRepeatingTaskNonMaster(server.shareKeys, "share_keys", time.Hour)
 		server.RegisterRepeatingTask(server.runQueue, "run_queue", time.Second)
+		server.RegisterRepeatingTask(server.cleanQueue, "clean_queue", time.Minute)
 
 		//Set the server name
 		server.checker = &prodChecker{server: server.Registry.Identifier}

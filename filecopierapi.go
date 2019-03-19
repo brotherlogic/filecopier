@@ -49,7 +49,7 @@ func (s *Server) QueueCopy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyRes
 	}
 
 	r := &pb.CopyResponse{Status: pb.CopyStatus_IN_QUEUE, TimeInQueue: time.Now().UnixNano()}
-	s.queue = append(s.queue, &queueEntry{req: in, resp: r})
+	s.queue = append(s.queue, &queueEntry{req: in, resp: r, timeAdded: time.Now()})
 	return r, nil
 }
 
