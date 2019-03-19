@@ -212,7 +212,7 @@ func (s *Server) cleanQueue(ctx context.Context) {
 	s.queue = nil
 
 	for _, elem := range newQueue {
-		if time.Now().Sub(elem.timeAdded) < time.Minute*5 {
+		if elem.resp.Status != pb.CopyStatus_COMPLETE || time.Now().Sub(elem.timeAdded) < time.Minute*5 {
 			s.queue = append(s.queue, elem)
 		}
 	}
