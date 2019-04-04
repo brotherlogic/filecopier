@@ -192,7 +192,7 @@ func (s *Server) GetState() []*pbg.State {
 	}
 }
 
-func (s *Server) shareKeys(ctx context.Context) {
+func (s *Server) shareKeys(ctx context.Context) error {
 	entities, err := utils.ResolveAll("filecopier")
 
 	if err == nil {
@@ -205,9 +205,11 @@ func (s *Server) shareKeys(ctx context.Context) {
 			}
 		}
 	}
+
+	return nil
 }
 
-func (s *Server) cleanQueue(ctx context.Context) {
+func (s *Server) cleanQueue(ctx context.Context) error {
 	newQueue := s.queue
 	s.queue = nil
 
@@ -216,6 +218,8 @@ func (s *Server) cleanQueue(ctx context.Context) {
 			s.queue = append(s.queue, elem)
 		}
 	}
+
+	return nil
 }
 
 func main() {

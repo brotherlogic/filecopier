@@ -10,7 +10,7 @@ import (
 	"golang.org/x/net/context"
 )
 
-func (s *Server) runQueue(ctx context.Context) {
+func (s *Server) runQueue(ctx context.Context) error {
 	for _, entry := range s.queue {
 		if entry.resp.Status == pb.CopyStatus_IN_QUEUE {
 			entry.resp.Status = pb.CopyStatus_IN_PROGRESS
@@ -19,9 +19,11 @@ func (s *Server) runQueue(ctx context.Context) {
 				entry.resp.Error = fmt.Sprintf("%v", err)
 			}
 			entry.resp.Status = pb.CopyStatus_COMPLETE
-			return
+			return nil
 		}
 	}
+
+	return nil
 }
 
 func makeCopyString(server, file string) string {
