@@ -112,6 +112,18 @@ func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
 
 	}
 
+	sout, err := command.StdoutPipe()
+	if err == nil && sout != nil {
+		scanner := bufio.NewScanner(sout)
+		go func() {
+			for scanner != nil && scanner.Scan() {
+				s.currsout = fmt.Sprintf("%v->%v: %v", in.InputServer, in.OutputServer, output)
+			}
+			out.Close()
+		}()
+
+	}
+
 	err = command.Start()
 	if err != nil {
 		s.lastError = fmt.Sprintf("CS %v", err)

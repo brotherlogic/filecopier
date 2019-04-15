@@ -105,6 +105,7 @@ type Server struct {
 	copyTime        time.Duration
 	queue           []*queueEntry
 	currout         string
+	currsout        string
 	tCopyTime       time.Duration
 }
 
@@ -125,6 +126,7 @@ func Init() *Server {
 		"",
 		0,
 		make([]*queueEntry, 0),
+		"",
 		"",
 		0,
 	}
@@ -191,6 +193,7 @@ func (s *Server) GetState() []*pbg.State {
 		&pbg.State{Key: "waiting", Value: inQueue},
 		&pbg.State{Key: "copy_time", TimeDuration: s.copyTime.Nanoseconds()},
 		&pbg.State{Key: "current_output", Text: s.currout},
+		&pbg.State{Key: "current_output", Text: s.currsout},
 		&pbg.State{Key: "avg_copy_time", TimeDuration: s.tCopyTime.Nanoseconds() / s.copies},
 	}
 }
