@@ -41,9 +41,10 @@ func (s *Server) reduce() {
 
 // QueueCopy copies over a key using a queue
 func (s *Server) QueueCopy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse, error) {
-	for _, q := range s.queue {
+	for ind, q := range s.queue {
 		if in.InputServer == q.req.InputServer && in.OutputServer == q.req.OutputServer &&
 			in.InputFile == q.req.InputFile && in.OutputFile == q.req.OutputFile {
+			q.resp.IndexInQueue = int32(ind)
 			return q.resp, nil
 		}
 	}

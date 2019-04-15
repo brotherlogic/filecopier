@@ -21,6 +21,7 @@ message CopyResponse {
   CopyStatus status = 2;
   int64 time_in_queue = 3;
   string error = 4;
+  int32 index_in_queue = 5;
 }
 
 message KeyRequest {
