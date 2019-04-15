@@ -125,6 +125,12 @@ func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
 	}
 
 	s.copyTime = time.Now().Sub(stTime)
+	s.tCopyTime += time.Now().Sub(stTime)
+
+	if s.copyTime > time.Minute*5 {
+		s.RaiseIssue(ctx, "Long Copy Time", fmt.Sprintf("Copy took %v", s.copyTime), false)
+	}
+
 	s.lastError = fmt.Sprintf("DONE %v", output)
 	return nil
 }
