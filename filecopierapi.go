@@ -96,7 +96,7 @@ func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
 
 	copyIn := makeCopyString(in.InputServer, in.InputFile)
 	copyOut := makeCopyString(in.OutputServer, in.OutputFile)
-	command := exec.Command(s.command, "-3", "-o", "StrictHostKeyChecking=no", copyIn, copyOut)
+	command := exec.Command(s.command, "-o", "StrictHostKeyChecking=no", copyIn, copyOut)
 
 	output := ""
 	out, err := command.StderrPipe()
