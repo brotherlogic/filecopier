@@ -193,8 +193,8 @@ func (s *Server) GetState() []*pbg.State {
 		&pbg.State{Key: "queued", Value: int64(len(s.queue))},
 		&pbg.State{Key: "waiting", Value: inQueue},
 		&pbg.State{Key: "copy_time", TimeDuration: s.copyTime.Nanoseconds()},
-		&pbg.State{Key: "current_output", Text: s.currout},
-		&pbg.State{Key: "current_output", Text: s.currsout},
+		&pbg.State{Key: "current_err_output", Text: s.currout},
+		&pbg.State{Key: "current_std_output", Text: s.currsout},
 		&pbg.State{Key: "avg_copy_time", TimeDuration: s.tCopyTime.Nanoseconds() / (s.copies + 1)},
 	}
 }
