@@ -185,6 +185,7 @@ func (s *Server) GetState() []*pbg.State {
 		}
 	}
 	return []*pbg.State{
+		&pbg.State{Key: "copy_start", TimeValue: s.lastCopyTime.Unix()},
 		&pbg.State{Key: "keys", Value: int64(len(s.keys))},
 		&pbg.State{Key: "copies", Value: s.copies},
 		&pbg.State{Key: "con_copies", Value: s.ccopies},

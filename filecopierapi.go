@@ -73,6 +73,7 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 
 func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
 	stTime := time.Now()
+	s.lastCopyTime = time.Now()
 	s.lastCopyDetails = fmt.Sprintf("%v from %v to %v", in.InputFile, in.InputServer, in.OutputServer)
 	s.ccopies++
 	defer s.reduce()
