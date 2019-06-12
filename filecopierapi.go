@@ -140,7 +140,7 @@ func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
 	s.copyTime = time.Now().Sub(stTime)
 	s.tCopyTime += time.Now().Sub(stTime)
 
-	if s.copyTime > time.Minute*5 {
+	if s.copyTime > time.Hour {
 		s.RaiseIssue(ctx, "Long Copy Time", fmt.Sprintf("Copy from %v to %v took %v", in.InputServer, in.OutputServer, s.copyTime), false)
 	}
 
