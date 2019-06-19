@@ -39,6 +39,11 @@ func (s *Server) reduce() {
 	s.ccopiesMutex.Unlock()
 }
 
+// DirCopy copies a directory
+func (s *Server) DirCopy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse, error) {
+	return nil, fmt.Errorf("Not implemented")
+}
+
 // QueueCopy copies over a key using a queue
 func (s *Server) QueueCopy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse, error) {
 	for ind, q := range s.queue {

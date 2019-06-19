@@ -38,6 +38,7 @@ message AcceptsResponse {
 }
 
 service FileCopierService {
+  rpc DirCopy(CopyRequest) returns (CopyResponse) {};
   rpc QueueCopy(CopyRequest) returns (CopyResponse) {};
   rpc Copy(CopyRequest) returns (CopyResponse) {};
   rpc ReceiveKey(KeyRequest) returns (KeyResponse) {};
