@@ -171,7 +171,7 @@ func TestCopyFailConc(t *testing.T) {
 func TestDirCopy(t *testing.T) {
 	s := InitTestServer()
 	s.ccopies = 4
-	_, err := s.DirCopy(context.Background(), &pb.CopyRequest{InputFile: "test.txt", OutputFile: "testout.txt", InputServer: "input"})
+	_, err := s.DirCopy(context.Background(), &pb.CopyRequest{InputFile: "dirtest", OutputFile: "dirtest_out", InputServer: "input"})
 
 	if err == nil {
 		t.Errorf("No error in copying file: %v", err)

@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -44,6 +45,7 @@ func (s *Server) reduce() {
 // DirCopy copies a directory
 func (s *Server) DirCopy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse, error) {
 	err := filepath.Walk(in.InputFile, func(path string, info os.FileInfo, walkerr error) error {
+		log.Printf("path: %v", path)
 		s.Log(fmt.Sprintf("Would copy %v", path))
 		return nil
 	})
