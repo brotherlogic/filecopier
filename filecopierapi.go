@@ -3,7 +3,9 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"time"
 
 	pb "github.com/brotherlogic/filecopier/proto"
@@ -41,7 +43,11 @@ func (s *Server) reduce() {
 
 // DirCopy copies a directory
 func (s *Server) DirCopy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse, error) {
-	return nil, fmt.Errorf("Not implemented")
+	err := filepath.Walk(in.InputFile, func(path string, info os.FileInfo, walkerr error) error {
+		s.Log(fmt.Sprintf("Would copy %v", path))
+		return nil
+	})
+	return nil, fmt.Errorf("Not implemented but we did get %v", err)
 }
 
 // QueueCopy copies over a key using a queue
