@@ -14,6 +14,7 @@ message CopyRequest {
   string input_server = 2;
   string output_file = 3;
   string output_server = 4;
+  int32 priority = 5;
 }
 
 message CopyResponse {
@@ -22,6 +23,7 @@ message CopyResponse {
   int64 time_in_queue = 3;
   string error = 4;
   int32 index_in_queue = 5;
+  int32 priority = 6;
 }
 
 message KeyRequest {
