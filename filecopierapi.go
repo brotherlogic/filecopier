@@ -1,10 +1,8 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"time"
 
@@ -45,9 +43,10 @@ func (s *Server) reduce() {
 func (s *Server) DirCopy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse, error) {
 	err := filepath.Walk(in.InputFile, func(path string, info os.FileInfo, walkerr error) error {
 		s.Log(fmt.Sprintf("Would copy %v", path))
+		s.QueueCopy(ctx, &pb.CopyRequest{InputServer: in.InputServer, InputFile: path, OutputServer: in.OutputServer, OutputFile: in.OutputFile + path, Priority: 100})
 		return nil
 	})
-	return nil, fmt.Errorf("Not implemented but we did get %v", err)
+	return &pb.CopyResponse{}, err
 }
 
 // QueueCopy copies over a key using a queue
@@ -80,81 +79,4 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 	err := s.runCopy(ctx, in)
 	defer s.reduce()
 	return &pb.CopyResponse{MillisToCopy: time.Now().Sub(t).Nanoseconds() / 1000000}, err
-}
-
-func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
-	stTime := time.Now()
-	s.lastCopyTime = time.Now()
-	s.lastCopyDetails = fmt.Sprintf("%v from %v to %v (%v)", in.InputFile, in.InputServer, in.OutputServer, in.OutputFile)
-	s.ccopies++
-	defer s.reduce()
-
-	s.Log(fmt.Sprintf("COPY: %v, %v to %v, %v", in.InputServer, in.InputFile, in.OutputServer, in.OutputFile))
-	s.copies++
-
-	err := s.checker.check(in.InputServer)
-	if err != nil {
-		s.lastError = fmt.Sprintf("IN: %v", err)
-		s.Log(fmt.Sprintf("Failed to check %v", in.InputServer))
-		return fmt.Errorf("Input %v is unable to handle this request: %v", in.InputServer, err)
-	}
-
-	err = s.checker.check(in.OutputServer)
-	if err != nil {
-		s.lastError = fmt.Sprintf("OUT: %v", err)
-		s.Log(fmt.Sprintf("Failed to check %v", in.OutputServer))
-		return fmt.Errorf("Output %v is unable to handle this request: %v", in.OutputServer, err)
-	}
-
-	copyIn := makeCopyString(in.InputServer, in.InputFile)
-	copyOut := makeCopyString(in.OutputServer, in.OutputFile)
-	command := exec.Command(s.command, "-o", "StrictHostKeyChecking=no", copyIn, copyOut)
-
-	output := ""
-	out, err := command.StderrPipe()
-	if err == nil && out != nil {
-		scanner := bufio.NewScanner(out)
-		go func() {
-			for scanner != nil && scanner.Scan() {
-				output += scanner.Text()
-				s.currout = fmt.Sprintf("%v->%v: %v", in.InputServer, in.OutputServer, output)
-			}
-			out.Close()
-		}()
-
-	}
-
-	sout, err := command.StdoutPipe()
-	if err == nil && sout != nil {
-		scanner := bufio.NewScanner(sout)
-		go func() {
-			for scanner != nil && scanner.Scan() {
-				s.currsout = fmt.Sprintf("%v->%v: %v", in.InputServer, in.OutputServer, output)
-			}
-			out.Close()
-		}()
-
-	}
-
-	err = command.Start()
-	if err != nil {
-		s.lastError = fmt.Sprintf("CS %v", err)
-		return fmt.Errorf("Error running copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
-	}
-	err = command.Wait()
-
-	if err != nil {
-		s.lastError = fmt.Sprintf("CW %v", err)
-		return fmt.Errorf("Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
-	}
-
-	s.copyTime = time.Now().Sub(stTime)
-	s.tCopyTime += time.Now().Sub(stTime)
-
-	if s.copyTime > time.Hour {
-		s.RaiseIssue(ctx, "Long Copy Time", fmt.Sprintf("Copy from %v to %v took %v", in.InputServer, in.OutputServer, s.copyTime), false)
-	}
-
-	s.lastError = fmt.Sprintf("DONE %v", output)
-	return nil
 }

@@ -11,8 +11,7 @@ import (
 	"golang.org/x/net/context"
 )
 
-func (s *Server) runQueue(ctx context.Context) error {
-
+func (s *Server) sortQueue() {
 	sort.SliceStable(s.queue, func(i, j int) bool {
 		if s.queue[i].resp.Status == pb.CopyStatus_IN_QUEUE && s.queue[j].resp.Status != pb.CopyStatus_IN_QUEUE {
 			return true
@@ -22,6 +21,11 @@ func (s *Server) runQueue(ctx context.Context) error {
 		}
 		return s.queue[i].resp.Priority < s.queue[j].resp.Priority
 	})
+
+}
+
+func (s *Server) runQueue(ctx context.Context) error {
+	s.sortQueue()
 
 	for _, entry := range s.queue {
 		if entry.resp.Status == pb.CopyStatus_IN_QUEUE {
