@@ -3,6 +3,7 @@ package main
 import (
 	"testing"
 
+	pb "github.com/brotherlogic/filecopier/proto"
 	"golang.org/x/net/context"
 )
 
@@ -70,5 +71,41 @@ func TestRunEmptyQueue(t *testing.T) {
 	err := s.runQueue(context.Background())
 	if err != nil {
 		t.Errorf("Error running queue: %v", err)
+	}
+}
+
+func TestSortQueue(t *testing.T) {
+	s := InitTestServer()
+	s.queue = append(s.queue, &queueEntry{resp: &pb.CopyResponse{Priority: 10}})
+	s.queue = append(s.queue, &queueEntry{resp: &pb.CopyResponse{Priority: 100}})
+
+	s.sortQueue()
+
+	if s.queue[0].resp.Priority == 100 {
+		t.Errorf("Queue is missorted")
+	}
+}
+
+func TestSortQueueV1(t *testing.T) {
+	s := InitTestServer()
+	s.queue = append(s.queue, &queueEntry{resp: &pb.CopyResponse{Status: pb.CopyStatus_COMPLETE}})
+	s.queue = append(s.queue, &queueEntry{resp: &pb.CopyResponse{Status: pb.CopyStatus_IN_QUEUE}})
+
+	s.sortQueue()
+
+	if s.queue[0].resp.Status == pb.CopyStatus_COMPLETE {
+		t.Errorf("Queue is missorted")
+	}
+}
+
+func TestSortQueueV2(t *testing.T) {
+	s := InitTestServer()
+	s.queue = append(s.queue, &queueEntry{resp: &pb.CopyResponse{Status: pb.CopyStatus_IN_QUEUE}})
+	s.queue = append(s.queue, &queueEntry{resp: &pb.CopyResponse{Status: pb.CopyStatus_COMPLETE}})
+
+	s.sortQueue()
+
+	if s.queue[0].resp.Status == pb.CopyStatus_COMPLETE {
+		t.Errorf("Queue is missorted")
 	}
 }

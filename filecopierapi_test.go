@@ -173,7 +173,7 @@ func TestDirCopy(t *testing.T) {
 	s.ccopies = 4
 	_, err := s.DirCopy(context.Background(), &pb.CopyRequest{InputFile: "dirtest", OutputFile: "dirtest_out", InputServer: "input"})
 
-	if err == nil {
-		t.Errorf("No error in copying file: %v", err)
+	if err != nil {
+		t.Errorf("Error in copying file: %v", err)
 	}
 }
