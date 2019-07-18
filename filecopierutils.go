@@ -4,13 +4,29 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 
 	pb "github.com/brotherlogic/filecopier/proto"
 	"golang.org/x/net/context"
 )
 
+func (s *Server) sortQueue() {
+	sort.SliceStable(s.queue, func(i, j int) bool {
+		if s.queue[i].resp.Status == pb.CopyStatus_IN_QUEUE && s.queue[j].resp.Status != pb.CopyStatus_IN_QUEUE {
+			return true
+		}
+		if s.queue[i].resp.Status != pb.CopyStatus_IN_QUEUE && s.queue[j].resp.Status == pb.CopyStatus_IN_QUEUE {
+			return false
+		}
+		return s.queue[i].resp.Priority < s.queue[j].resp.Priority
+	})
+
+}
+
 func (s *Server) runQueue(ctx context.Context) error {
+	s.sortQueue()
+
 	for _, entry := range s.queue {
 		if entry.resp.Status == pb.CopyStatus_IN_QUEUE {
 			entry.resp.Status = pb.CopyStatus_IN_PROGRESS

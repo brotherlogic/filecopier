@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os/exec"
 	"strconv"
 	"sync"
 	"time"
@@ -105,6 +107,8 @@ type Server struct {
 	copyTime        time.Duration
 	queue           []*queueEntry
 	currout         string
+	currsout        string
+	tCopyTime       time.Duration
 }
 
 // Init builds the server
@@ -125,6 +129,8 @@ func Init() *Server {
 		0,
 		make([]*queueEntry, 0),
 		"",
+		"",
+		0,
 	}
 	return s
 }
@@ -181,6 +187,7 @@ func (s *Server) GetState() []*pbg.State {
 		}
 	}
 	return []*pbg.State{
+		&pbg.State{Key: "copy_start", TimeValue: s.lastCopyTime.Unix()},
 		&pbg.State{Key: "keys", Value: int64(len(s.keys))},
 		&pbg.State{Key: "copies", Value: s.copies},
 		&pbg.State{Key: "con_copies", Value: s.ccopies},
@@ -188,7 +195,9 @@ func (s *Server) GetState() []*pbg.State {
 		&pbg.State{Key: "queued", Value: int64(len(s.queue))},
 		&pbg.State{Key: "waiting", Value: inQueue},
 		&pbg.State{Key: "copy_time", TimeDuration: s.copyTime.Nanoseconds()},
-		&pbg.State{Key: "current_output", Text: s.currout},
+		&pbg.State{Key: "current_err_output", Text: s.currout},
+		&pbg.State{Key: "current_std_output", Text: s.currsout},
+		&pbg.State{Key: "avg_copy_time", TimeDuration: s.tCopyTime.Nanoseconds() / (s.copies + 1)},
 	}
 }
 
@@ -219,6 +228,83 @@ func (s *Server) cleanQueue(ctx context.Context) error {
 		}
 	}
 
+	return nil
+}
+
+func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
+	stTime := time.Now()
+	s.lastCopyTime = time.Now()
+	s.lastCopyDetails = fmt.Sprintf("%v from %v to %v (%v)", in.InputFile, in.InputServer, in.OutputServer, in.OutputFile)
+	s.ccopies++
+	defer s.reduce()
+
+	s.Log(fmt.Sprintf("COPY: %v, %v to %v, %v", in.InputServer, in.InputFile, in.OutputServer, in.OutputFile))
+	s.copies++
+
+	err := s.checker.check(in.InputServer)
+	if err != nil {
+		s.lastError = fmt.Sprintf("IN: %v", err)
+		s.Log(fmt.Sprintf("Failed to check %v", in.InputServer))
+		return fmt.Errorf("Input %v is unable to handle this request: %v", in.InputServer, err)
+	}
+
+	err = s.checker.check(in.OutputServer)
+	if err != nil {
+		s.lastError = fmt.Sprintf("OUT: %v", err)
+		s.Log(fmt.Sprintf("Failed to check %v", in.OutputServer))
+		return fmt.Errorf("Output %v is unable to handle this request: %v", in.OutputServer, err)
+	}
+
+	copyIn := makeCopyString(in.InputServer, in.InputFile)
+	copyOut := makeCopyString(in.OutputServer, in.OutputFile)
+	command := exec.Command(s.command, "-o", "StrictHostKeyChecking=no", copyIn, copyOut)
+
+	output := ""
+	out, err := command.StderrPipe()
+	if err == nil && out != nil {
+		scanner := bufio.NewScanner(out)
+		go func() {
+			for scanner != nil && scanner.Scan() {
+				output += scanner.Text()
+				s.currout = fmt.Sprintf("%v->%v: %v", in.InputServer, in.OutputServer, output)
+			}
+			out.Close()
+		}()
+
+	}
+
+	sout, err := command.StdoutPipe()
+	if err == nil && sout != nil {
+		scanner := bufio.NewScanner(sout)
+		go func() {
+			for scanner != nil && scanner.Scan() {
+				s.currsout = fmt.Sprintf("%v->%v: %v", in.InputServer, in.OutputServer, output)
+			}
+			out.Close()
+		}()
+
+	}
+
+	err = command.Start()
+	if err != nil {
+		s.lastError = fmt.Sprintf("CS %v", err)
+		return fmt.Errorf("Error running copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
+	}
+	err = command.Wait()
+
+	if err != nil {
+		s.lastError = fmt.Sprintf("CW %v", err)
+		return fmt.Errorf("Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
+	}
+
+	s.copyTime = time.Now().Sub(stTime)
+	s.tCopyTime += time.Now().Sub(stTime)
+
+	if s.copyTime > time.Hour {
+		s.RaiseIssue(ctx, "Long Copy Time", fmt.Sprintf("Copy from %v to %v took %v", in.InputServer, in.OutputServer, s.copyTime), false)
+	}
+
+	s.lastError = fmt.Sprintf("DONE %v", output)
 	return nil
 }
 
