@@ -42,7 +42,6 @@ func (s *Server) reduce() {
 // DirCopy copies a directory
 func (s *Server) DirCopy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse, error) {
 	err := filepath.Walk(in.InputFile, func(path string, info os.FileInfo, walkerr error) error {
-		s.Log(fmt.Sprintf("Would copy %v", path))
 		s.QueueCopy(ctx, &pb.CopyRequest{InputServer: in.InputServer, InputFile: path, OutputServer: in.OutputServer, OutputFile: in.OutputFile + path, Priority: 100})
 		return nil
 	})
