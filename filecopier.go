@@ -244,14 +244,12 @@ func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
 	err := s.checker.check(in.InputServer)
 	if err != nil {
 		s.lastError = fmt.Sprintf("IN: %v", err)
-		s.Log(fmt.Sprintf("Failed to check %v", in.InputServer))
 		return fmt.Errorf("Input %v is unable to handle this request: %v", in.InputServer, err)
 	}
 
 	err = s.checker.check(in.OutputServer)
 	if err != nil {
 		s.lastError = fmt.Sprintf("OUT: %v", err)
-		s.Log(fmt.Sprintf("Failed to check %v", in.OutputServer))
 		return fmt.Errorf("Output %v is unable to handle this request: %v", in.OutputServer, err)
 	}
 
@@ -326,7 +324,7 @@ func main() {
 	err := server.RegisterServer("filecopier", false)
 	if err == nil {
 		server.RegisterRepeatingTaskNonMaster(server.shareKeys, "share_keys", time.Hour)
-		server.RegisterRepeatingTask(server.runQueue, "run_queue", time.Second)
+		server.RegisterRepeatingTask(server.runQueue, "run_queue", time.Minute)
 		server.RegisterRepeatingTask(server.cleanQueue, "clean_queue", time.Minute)
 
 		//Set the server name
