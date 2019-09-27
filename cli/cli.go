@@ -16,7 +16,7 @@ import (
 )
 
 func main() {
-	host, port, err := utils.Resolve("filecopier")
+	host, port, err := utils.Resolve("filecopier", "filecopier-cli")
 	if err != nil {
 		log.Fatalf("Unable to reach copier: %v", err)
 	}
