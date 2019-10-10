@@ -295,6 +295,10 @@ func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
 		return fmt.Errorf("Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
 
+	if len(s.currout) > 0 {
+		s.RaiseIssue(ctx, "Copy Error", fmt.Sprintf("Error on copy: %v", s.currout), false)
+	}
+
 	s.copyTime = time.Now().Sub(stTime)
 	s.tCopyTime += time.Now().Sub(stTime)
 
