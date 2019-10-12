@@ -8,6 +8,7 @@ import (
 	"log"
 	"os/exec"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -295,7 +296,7 @@ func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
 		return fmt.Errorf("Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
 
-	if len(s.currout) > 0 {
+	if len(s.currout) > 0 && !strings.Contains("lost connection", s.currout) {
 		s.RaiseIssue(ctx, "Copy Error", fmt.Sprintf("Error on copy: %v", s.currout), false)
 	}
 
