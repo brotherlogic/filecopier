@@ -330,8 +330,8 @@ func main() {
 
 	if err == nil {
 		server.RegisterRepeatingTaskNonMaster(server.shareKeys, "share_keys", time.Hour)
-		server.RegisterRepeatingTask(server.runQueue, "run_queue", time.Second)
-		server.RegisterRepeatingTask(server.cleanQueue, "clean_queue", time.Minute)
+		server.RegisterRepeatingTaskNonMaster(server.runQueue, "run_queue", time.Second)
+		server.RegisterRepeatingTaskNonMaster(server.cleanQueue, "clean_queue", time.Minute)
 
 		//Set the server name
 		server.checker = &prodChecker{server: server.Registry.Identifier}
