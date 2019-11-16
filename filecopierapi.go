@@ -54,7 +54,11 @@ func (s *Server) QueueCopy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyRes
 		if in.InputServer == q.req.InputServer && in.OutputServer == q.req.OutputServer &&
 			in.InputFile == q.req.InputFile && in.OutputFile == q.req.OutputFile {
 			q.resp.IndexInQueue = int32(ind)
-			return q.resp, nil
+			var err error
+			if len(q.resp.GetError()) > 0 {
+				err = fmt.Errorf("%v", q.resp.GetError())
+			}
+			return q.resp, err
 		}
 	}
 
