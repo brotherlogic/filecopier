@@ -99,7 +99,7 @@ func TestQueuedCopyWithFailure(t *testing.T) {
 
 	r3, err := s.QueueCopy(context.Background(), &pb.CopyRequest{InputFile: fmt.Sprintf("%v/test222.txt", dir), OutputFile: fmt.Sprintf("%v/testout.txt", dir)})
 
-	if err != nil {
+	if err == nil {
 		t.Fatalf("Error queueing copy: %v", err)
 	}
 
