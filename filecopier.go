@@ -326,7 +326,7 @@ func main() {
 	server.Register = server
 
 	server.keySetup()
-	err := server.RegisterServerIgnore("filecopier", false, true)
+	err := server.RegisterServerV2("filecopier", false)
 
 	if err == nil {
 		server.RegisterRepeatingTaskNonMaster(server.shareKeys, "share_keys", time.Hour)
