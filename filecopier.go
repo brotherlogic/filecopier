@@ -55,15 +55,15 @@ func (p *prodChecker) check(server string) error {
 	}
 
 	defer conn.Close()
-	client := pbd.NewDiscoveryServiceClient(conn)
+	client := pbd.NewDiscoveryServiceV2Client(conn)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
-	list, err := client.ListAllServices(ctx, &pbd.ListRequest{})
+	list, err := client.Get(ctx, &pbd.GetRequest{Job: "filecopier"})
 	if err != nil {
 		return fmt.Errorf("Failled to list all services: %v", err)
 	}
 
-	for _, cl := range list.Services.GetServices() {
+	for _, cl := range list.GetServices() {
 		if cl.GetIdentifier() == server && cl.GetName() == "filecopier" {
 			conn, err := grpc.Dial(cl.GetIp()+":"+strconv.Itoa(int(cl.GetPort())), grpc.WithInsecure())
 			if err != nil {
