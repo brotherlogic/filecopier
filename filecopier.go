@@ -337,7 +337,5 @@ func main() {
 		server.checker = &prodChecker{server: server.Registry.Identifier}
 
 		fmt.Printf("%v\n", server.Serve())
-	} else {
-		log.Fatalf("Unable to register: %v", err)
 	}
 }
