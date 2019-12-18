@@ -24,6 +24,7 @@ message CopyResponse {
   string error = 4;
   int32 index_in_queue = 5;
   int32 priority = 6;
+  int32 error_code = 7;
 }
 
 message KeyRequest {
