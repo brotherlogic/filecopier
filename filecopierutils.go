@@ -9,6 +9,7 @@ import (
 
 	pb "github.com/brotherlogic/filecopier/proto"
 	"golang.org/x/net/context"
+	"google.golang.org/grpc/status"
 )
 
 func (s *Server) sortQueue() {
@@ -33,6 +34,7 @@ func (s *Server) runQueue(ctx context.Context) error {
 			err := s.runCopy(ctx, entry.req)
 			if err != nil {
 				entry.resp.Error = fmt.Sprintf("%v", err)
+				entry.resp.ErrorCode = int32(status.Convert(err).Code())
 			}
 			entry.resp.Status = pb.CopyStatus_COMPLETE
 			return nil

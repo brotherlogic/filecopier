@@ -8,6 +8,8 @@ import (
 
 	pb "github.com/brotherlogic/filecopier/proto"
 	"golang.org/x/net/context"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 // ReceiveKey takes a key and adds it
@@ -56,7 +58,7 @@ func (s *Server) QueueCopy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyRes
 			q.resp.IndexInQueue = int32(ind)
 			var err error
 			if len(q.resp.GetError()) > 0 {
-				err = fmt.Errorf("%v", q.resp.GetError())
+				err = status.Errorf(codes.Code(q.resp.GetErrorCode()), "%v", q.resp.GetError())
 			}
 			return q.resp, err
 		}

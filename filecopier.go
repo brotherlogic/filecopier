@@ -20,6 +20,7 @@ import (
 	"github.com/brotherlogic/keystore/client"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/status"
 )
 
 type queueEntry struct {
@@ -245,13 +246,13 @@ func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
 	err := s.checker.check(in.InputServer)
 	if err != nil {
 		s.lastError = fmt.Sprintf("IN: %v", err)
-		return fmt.Errorf("Input %v is unable to handle this request: %v", in.InputServer, err)
+		return status.Errorf(status.Convert(err).Code(), "Input %v is unable to handle this request: %v", in.InputServer, err)
 	}
 
 	err = s.checker.check(in.OutputServer)
 	if err != nil {
 		s.lastError = fmt.Sprintf("OUT: %v", err)
-		return fmt.Errorf("Output %v is unable to handle this request: %v", in.OutputServer, err)
+		return status.Errorf(status.Convert(err).Code(), "Output %v is unable to handle this request: %v", in.OutputServer, err)
 	}
 
 	copyIn := makeCopyString(in.InputServer, in.InputFile)
