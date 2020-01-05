@@ -298,7 +298,7 @@ func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
 	}
 
 	if len(s.currout) > 0 && !strings.Contains("lost connection", s.currout) {
-		s.RaiseIssue(ctx, "Copy Error", fmt.Sprintf("Error on copy: %v", s.currout), false)
+		s.RaiseIssue(ctx, "Copy Error", fmt.Sprintf("[%v] Error on copy: %v", s.Registry.Identifier, s.currout), false)
 	}
 
 	s.copyTime = time.Now().Sub(stTime)
