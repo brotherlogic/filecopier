@@ -14,7 +14,7 @@ import (
 
 func (s *Server) sortQueue() {
 	sort.SliceStable(s.queue, func(i, j int) bool {
-		if s.queue[i].resp.Status == pb.CopyStatus_IN_QUEUE && s.queue[j].resp.Status != pb.CopyStatus_IN_QUEUE {
+		if s.queue[i].resp.GetStatus() == pb.CopyStatus_IN_QUEUE && s.queue[j].resp.GetStatus() != pb.CopyStatus_IN_QUEUE {
 			return true
 		}
 		if s.queue[i].resp.Status != pb.CopyStatus_IN_QUEUE && s.queue[j].resp.Status == pb.CopyStatus_IN_QUEUE {
