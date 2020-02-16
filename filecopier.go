@@ -20,6 +20,7 @@ import (
 	"github.com/brotherlogic/keystore/client"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
@@ -89,7 +90,7 @@ func (p *prodChecker) check(server string) error {
 
 	}
 
-	return fmt.Errorf("Server %v was not found", server)
+	return status.Errorf(codes.NotFound, "Server %v was not found", server)
 }
 
 //Server main server type
