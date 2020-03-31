@@ -12,7 +12,14 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (s *Server) sortQueue() {
+func (s *Server) sortQueue(ctx context.Context) {
+	for _, q := range s.queue {
+		if q == nil {
+			s.RaiseIssue(ctx, "Empty Element in QUeue", fmt.Sprintf("%v", s.queue), false)
+			return
+		}
+	}
+
 	sort.SliceStable(s.queue, func(i, j int) bool {
 		if s.queue[i].resp.GetStatus() == pb.CopyStatus_IN_QUEUE && s.queue[j].resp.GetStatus() != pb.CopyStatus_IN_QUEUE {
 			return true
@@ -26,7 +33,7 @@ func (s *Server) sortQueue() {
 }
 
 func (s *Server) runQueue(ctx context.Context) error {
-	s.sortQueue()
+	s.sortQueue(ctx)
 
 	for _, entry := range s.queue {
 		if entry.resp.Status == pb.CopyStatus_IN_QUEUE {
