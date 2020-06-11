@@ -138,7 +138,7 @@ func Init() *Server {
 	return s
 }
 
-func (s *Server) keySetup() {
+func (s *Server) keySetup() error {
 	keys, err := readKeys("/home/simon/.ssh/authorized_keys")
 	if err == nil {
 		s.keys = keys
@@ -146,16 +146,17 @@ func (s *Server) keySetup() {
 
 	keys, err = readKeys("/home/simon/.ssh/id_rsa.pub")
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	if len(keys) != 1 {
-		log.Fatalf("Weird key setup: %v", keys)
+		return fmt.Errorf("Weird key setup: %v", keys)
 	}
 
 	for _, val := range keys {
 		s.mykey = val
 	}
+	return nil
 }
 
 // DoRegister does RPC registration
@@ -327,8 +328,14 @@ func main() {
 	server.PrepServer()
 	server.Register = server
 
-	server.keySetup()
-	err := server.RegisterServerV2("filecopier", false, true)
+	err := server.keySetup()
+
+	if err != nil {
+		fmt.Printf("Something is wrong with the key setup: %v", err)
+		return
+	}
+
+	err = server.RegisterServerV2("filecopier", false, true)
 
 	if err == nil {
 		server.RegisterRepeatingTaskNonMaster(server.shareKeys, "share_keys", time.Hour)
