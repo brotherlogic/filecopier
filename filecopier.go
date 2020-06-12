@@ -17,7 +17,6 @@ import (
 	"github.com/brotherlogic/goserver"
 	pbg "github.com/brotherlogic/goserver/proto"
 	"github.com/brotherlogic/goserver/utils"
-	"github.com/brotherlogic/keystore/client"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -201,7 +200,6 @@ func (s *Server) GetState() []*pbg.State {
 		&pbg.State{Key: "copy_time", TimeDuration: s.copyTime.Nanoseconds()},
 		&pbg.State{Key: "current_err_output", Text: s.currout},
 		&pbg.State{Key: "current_std_output", Text: s.currsout},
-		&pbg.State{Key: "avg_copy_time", TimeDuration: s.tCopyTime.Nanoseconds() / (s.copies + 1)},
 	}
 }
 
@@ -324,7 +322,6 @@ func main() {
 		log.SetOutput(ioutil.Discard)
 	}
 	server := Init()
-	server.GoServer.KSclient = *keystoreclient.GetClient(server.DialMaster)
 	server.PrepServer()
 	server.Register = server
 
