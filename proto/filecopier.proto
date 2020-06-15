@@ -15,6 +15,8 @@ message CopyRequest {
   string output_file = 3;
   string output_server = 4;
   int32 priority = 5;
+  int64 key = 6;
+  string callback = 7;
 }
 
 message CopyResponse {
@@ -46,4 +48,14 @@ service FileCopierService {
   rpc Copy(CopyRequest) returns (CopyResponse) {};
   rpc ReceiveKey(KeyRequest) returns (KeyResponse) {};
   rpc Accepts(AcceptsRequest) returns (AcceptsResponse) {};
+}
+
+message CallbackRequest {
+  int64 key = 1;
+}
+
+message CallbackResponse {}
+
+service FileCopierCallback {
+  rpc Callback(CallbackRequest) returns (CallbackResponse) {};
 }
