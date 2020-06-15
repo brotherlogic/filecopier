@@ -309,6 +309,17 @@ func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
 	}
 
 	s.lastError = fmt.Sprintf("DONE %v", output)
+
+	//Perform the callback if needed - this is fire and forget
+	if len(in.GetCallback()) > 0 {
+		conn, err := s.FDial(in.GetCallback())
+		if err == nil {
+			defer conn.Close()
+			client := pb.NewFileCopierCallbackClient(conn)
+			client.Callback(ctx, &pb.CallbackRequest{Key: in.GetKey()})
+		}
+	}
+
 	return nil
 }
 
