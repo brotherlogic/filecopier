@@ -21,6 +21,7 @@ func (s *Server) ReceiveKey(ctx context.Context, in *pb.KeyRequest) (*pb.KeyResp
 	}
 
 	s.keys[in.Server] = in.Key
+	rkeys.Set(float64(len(s.keys)))
 	err := s.writer.writeKeys(s.keys)
 
 	return &pb.KeyResponse{}, err

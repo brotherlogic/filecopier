@@ -17,10 +17,19 @@ import (
 	"github.com/brotherlogic/goserver"
 	pbg "github.com/brotherlogic/goserver/proto"
 	"github.com/brotherlogic/goserver/utils"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+)
+
+var (
+	rkeys = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "filecopier_keys",
+		Help: "The number of keys",
+	})
 )
 
 type queueEntry struct {
@@ -143,6 +152,8 @@ func (s *Server) keySetup() error {
 		s.keys = keys
 	}
 
+	rkeys.Set(float64(len(s.keys)))
+
 	keys, err = readKeys("/home/simon/.ssh/id_rsa.pub")
 	if err != nil {
 		return err
@@ -204,11 +215,11 @@ func (s *Server) GetState() []*pbg.State {
 }
 
 func (s *Server) shareKeys(ctx context.Context) error {
-	entities, err := utils.ResolveAll("filecopier")
+	entities, err := s.FFind(ctx, "filecopier")
 
 	if err == nil {
 		for _, e := range entities {
-			conn, err := grpc.Dial(e.Ip+":"+strconv.Itoa(int(e.Port)), grpc.WithInsecure())
+			conn, err := s.FDial(e)
 			defer conn.Close()
 			if err == nil {
 				client := pb.NewFileCopierServiceClient(conn)
@@ -298,14 +309,14 @@ func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
 	}
 
 	if len(s.currout) > 0 && !strings.Contains("lost connection", s.currout) {
-		s.RaiseIssue(ctx, "Copy Error", fmt.Sprintf("[%v] Error on copy: %v", s.Registry.Identifier, s.currout), false)
+		s.RaiseIssue("Copy Error", fmt.Sprintf("[%v] Error on copy: %v", s.Registry.Identifier, s.currout))
 	}
 
 	s.copyTime = time.Now().Sub(stTime)
 	s.tCopyTime += time.Now().Sub(stTime)
 
 	if s.copyTime > time.Hour {
-		s.RaiseIssue(ctx, "Long Copy Time", fmt.Sprintf("Copy from %v to %v took %v", in.InputServer, in.OutputServer, s.copyTime), false)
+		s.RaiseIssue("Long Copy Time", fmt.Sprintf("Copy from %v to %v took %v", in.InputServer, in.OutputServer, s.copyTime))
 	}
 
 	s.lastError = fmt.Sprintf("DONE %v", output)
@@ -345,11 +356,12 @@ func main() {
 
 	err = server.RegisterServerV2("filecopier", false, true)
 
-	if err == nil {
-		server.RegisterRepeatingTaskNonMaster(server.shareKeys, "share_keys", time.Hour)
-		server.RegisterRepeatingTaskNonMaster(server.runQueue, "run_queue", time.Second)
-		server.RegisterRepeatingTaskNonMaster(server.cleanQueue, "clean_queue", time.Minute)
+	// Share all our keys
+	ctx, cancel := utils.ManualContext("filecopier", "filecopier-start", time.Minute, true)
+	server.shareKeys(ctx)
+	cancel()
 
+	if err == nil {
 		//Set the server name
 		server.checker = &prodChecker{server: server.Registry.Identifier}
 

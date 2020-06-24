@@ -15,7 +15,7 @@ import (
 func (s *Server) sortQueue(ctx context.Context) {
 	for _, q := range s.queue {
 		if q == nil {
-			s.RaiseIssue(ctx, "Empty Element in QUeue", fmt.Sprintf("%v", s.queue), false)
+			s.RaiseIssue("Empty Element in QUeue", fmt.Sprintf("%v", s.queue))
 			return
 		}
 	}
