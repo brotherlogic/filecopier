@@ -66,7 +66,9 @@ func (s *Server) QueueCopy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyRes
 	}
 
 	r := &pb.CopyResponse{Status: pb.CopyStatus_IN_QUEUE, TimeInQueue: time.Now().UnixNano()}
-	s.queue = append(s.queue, &queueEntry{req: in, resp: r, timeAdded: time.Now()})
+	entry := &queueEntry{req: in, resp: r, timeAdded: time.Now()}
+	s.queue = append(s.queue, entry)
+	s.queueChan <- entry
 	return r, nil
 }
 
@@ -82,7 +84,7 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 	s.ccopiesMutex.Unlock()
 
 	t := time.Now()
-	err := s.runCopy(ctx, in)
+	err := s.runCopy(in)
 	defer s.reduce()
 	return &pb.CopyResponse{MillisToCopy: time.Now().Sub(t).Nanoseconds() / 1000000}, err
 }

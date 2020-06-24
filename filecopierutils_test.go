@@ -66,14 +66,6 @@ func TestWriteKeys(t *testing.T) {
 	}
 }
 
-func TestRunEmptyQueue(t *testing.T) {
-	s := InitTestServer()
-	err := s.runQueue(context.Background())
-	if err != nil {
-		t.Errorf("Error running queue: %v", err)
-	}
-}
-
 func TestSortQueue(t *testing.T) {
 	s := InitTestServer()
 	s.queue = append(s.queue, &queueEntry{resp: &pb.CopyResponse{Priority: 10}})
