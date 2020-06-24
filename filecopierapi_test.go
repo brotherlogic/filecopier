@@ -33,6 +33,7 @@ func InitTestServer() *Server {
 	s.writer = &testWriter{}
 	s.checker = &testChecker{}
 	s.SkipLog = true
+	s.SkipIssue = true
 	return s
 }
 
