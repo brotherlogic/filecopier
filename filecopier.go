@@ -120,6 +120,7 @@ type Server struct {
 	currout         string
 	currsout        string
 	tCopyTime       time.Duration
+	queueChan       chan *queueEntry
 }
 
 // Init builds the server
@@ -142,7 +143,9 @@ func Init() *Server {
 		"",
 		"",
 		0,
+		make(chan *queueEntry, 100),
 	}
+
 	return s
 }
 
@@ -244,7 +247,7 @@ func (s *Server) cleanQueue(ctx context.Context) error {
 	return nil
 }
 
-func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
+func (s *Server) runCopy(in *pb.CopyRequest) error {
 	stTime := time.Now()
 	s.lastCopyTime = time.Now()
 	s.lastCopyDetails = fmt.Sprintf("%v from %v to %v (%v)", in.InputFile, in.InputServer, in.OutputServer, in.OutputFile)
@@ -326,8 +329,10 @@ func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
 		conn, err := s.FDial(in.GetCallback())
 		if err == nil {
 			defer conn.Close()
+			ctx, cancel := utils.ManualContext("filecopier-callback", "filecopier-callback", time.Minute, true)
 			client := pb.NewFileCopierCallbackClient(conn)
 			client.Callback(ctx, &pb.CallbackRequest{Key: in.GetKey()})
+			cancel()
 		}
 	}
 
@@ -364,6 +369,9 @@ func main() {
 	if err == nil {
 		//Set the server name
 		server.checker = &prodChecker{server: server.Registry.Identifier}
+
+		// Run the queue processor
+		go server.runQueue()
 
 		fmt.Printf("%v\n", server.Serve())
 	}

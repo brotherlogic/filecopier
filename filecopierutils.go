@@ -32,23 +32,16 @@ func (s *Server) sortQueue(ctx context.Context) {
 
 }
 
-func (s *Server) runQueue(ctx context.Context) error {
-	s.sortQueue(ctx)
-
-	for _, entry := range s.queue {
-		if entry.resp.Status == pb.CopyStatus_IN_QUEUE {
-			entry.resp.Status = pb.CopyStatus_IN_PROGRESS
-			err := s.runCopy(ctx, entry.req)
-			if err != nil {
-				entry.resp.Error = fmt.Sprintf("%v", err)
-				entry.resp.ErrorCode = int32(status.Convert(err).Code())
-			}
-			entry.resp.Status = pb.CopyStatus_COMPLETE
-			return nil
+func (s *Server) runQueue() {
+	for entry := range s.queueChan {
+		entry.resp.Status = pb.CopyStatus_IN_PROGRESS
+		err := s.runCopy(entry.req)
+		if err != nil {
+			entry.resp.Error = fmt.Sprintf("%v", err)
+			entry.resp.ErrorCode = int32(status.Convert(err).Code())
 		}
+		entry.resp.Status = pb.CopyStatus_COMPLETE
 	}
-
-	return nil
 }
 
 func makeCopyString(server, file string) string {
