@@ -247,7 +247,15 @@ func (s *Server) cleanQueue(ctx context.Context) error {
 	return nil
 }
 
+var (
+	copies = promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "copies",
+		Help: "The number of server requests",
+	}, []string{"file", "destination"})
+)
+
 func (s *Server) runCopy(in *pb.CopyRequest) error {
+	copies.With(prometheus.Labels{"file": in.InputFile, "destination": in.OutputServer}).Inc()
 	stTime := time.Now()
 	s.lastCopyTime = time.Now()
 	s.lastCopyDetails = fmt.Sprintf("%v from %v to %v (%v)", in.InputFile, in.InputServer, in.OutputServer, in.OutputFile)
