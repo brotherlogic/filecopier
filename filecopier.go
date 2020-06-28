@@ -249,7 +249,7 @@ func (s *Server) cleanQueue(ctx context.Context) error {
 
 var (
 	copies = promauto.NewCounterVec(prometheus.CounterOpts{
-		Name: "copies",
+		Name: "filecopier_copies",
 		Help: "The number of server requests",
 	}, []string{"file", "destination"})
 )
