@@ -7,6 +7,8 @@ import (
 	"time"
 
 	pb "github.com/brotherlogic/filecopier/proto"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -51,6 +53,13 @@ func (s *Server) DirCopy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyRespo
 	return &pb.CopyResponse{}, err
 }
 
+var (
+	queue = promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "filecopier_queued",
+		Help: "The number of server requests",
+	}, []string{"file", "destination"})
+)
+
 // QueueCopy copies over a key using a queue
 func (s *Server) QueueCopy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse, error) {
 	for ind, q := range s.queue {
@@ -67,6 +76,7 @@ func (s *Server) QueueCopy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyRes
 
 	r := &pb.CopyResponse{Status: pb.CopyStatus_IN_QUEUE, TimeInQueue: time.Now().UnixNano()}
 	entry := &queueEntry{req: in, resp: r, timeAdded: time.Now()}
+	queue.With(prometheus.Labels{"file": in.InputFile, "destination": in.OutputServer}).Inc()
 	s.queue = append(s.queue, entry)
 	s.queueChan <- entry
 	return r, nil
