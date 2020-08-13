@@ -258,9 +258,9 @@ func (s *Server) runCopy(in *pb.CopyRequest) error {
 		return status.Errorf(status.Convert(err).Code(), "Output %v is unable to handle this request: %v", in.OutputServer, err)
 	}
 
-	copyIn := makeCopyString(in.InputServer, in.InputFile)
-	copyOut := makeCopyString(in.OutputServer, in.OutputFile)
-	command := exec.Command(s.command, "-p", "-o", "StrictHostKeyChecking=no", copyIn, copyOut)
+	copyIn := s.makeCopyString(in.InputServer, in.InputFile)
+	copyOut := s.makeCopyString(in.OutputServer, in.OutputFile)
+	command := exec.Command(s.command, "-p", "-o", "'StrictHostKeyChecking no'", copyIn, copyOut)
 
 	output := ""
 	out, err := command.StderrPipe()
