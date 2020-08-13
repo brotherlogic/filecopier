@@ -34,7 +34,9 @@ message KeyRequest {
   string server = 2;
 }
 
-message KeyResponse {}
+message KeyResponse {
+  string mykey = 1;
+}
 
 message AcceptsRequest {
   string server = 1;

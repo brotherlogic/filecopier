@@ -26,7 +26,7 @@ func (s *Server) ReceiveKey(ctx context.Context, in *pb.KeyRequest) (*pb.KeyResp
 	rkeys.Set(float64(len(s.keys)))
 	err := s.writer.writeKeys(s.keys)
 
-	return &pb.KeyResponse{}, err
+	return &pb.KeyResponse{Mykey: s.mykey}, err
 }
 
 // Accepts pulls in a key
@@ -43,8 +43,15 @@ func (s *Server) Accepts(ctx context.Context, in *pb.AcceptsRequest) (*pb.Accept
 	}
 	defer conn.Close()
 	client := pb.NewFileCopierServiceClient(conn)
-	_, err = client.ReceiveKey(ctx, &pb.KeyRequest{Key: s.mykey, Server: s.GoServer.Registry.Identifier})
-	return &pb.AcceptsResponse{Type: "key-passed"}, err
+	resp, err := client.ReceiveKey(ctx, &pb.KeyRequest{Key: s.mykey, Server: s.GoServer.Registry.Identifier})
+	if err != nil {
+		return nil, err
+	}
+
+	s.keys[in.Server] = resp.GetMykey()
+	rkeys.Set(float64(len(s.keys)))
+
+	return &pb.AcceptsResponse{Type: "key-passed"}, s.writer.writeKeys(s.keys)
 }
 
 func (s *Server) reduce() {
