@@ -7,12 +7,10 @@ import (
 	"io/ioutil"
 	"log"
 	"os/exec"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
 
-	pbd "github.com/brotherlogic/discovery/proto"
 	pb "github.com/brotherlogic/filecopier/proto"
 	"github.com/brotherlogic/goserver"
 	pbg "github.com/brotherlogic/goserver/proto"
@@ -56,49 +54,22 @@ type checker interface {
 
 type prodChecker struct {
 	server string
+	dial   func(ctx context.Context, job, server string) (*grpc.ClientConn, error)
 }
 
 func (p *prodChecker) check(server string) error {
-	conn, err := grpc.Dial(utils.LocalDiscover, grpc.WithInsecure())
-	if err != nil {
-		return fmt.Errorf("Error dialing discover: %v", err)
-	}
-
-	defer conn.Close()
-	client := pbd.NewDiscoveryServiceV2Client(conn)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
-	list, err := client.Get(ctx, &pbd.GetRequest{Job: "filecopier"})
+
+	conn, err := p.dial(ctx, "filecopier", server)
 	if err != nil {
-		return fmt.Errorf("Failled to list all services: %v", err)
+		return fmt.Errorf("Failed to dial: %v", err)
 	}
+	defer conn.Close()
 
-	for _, cl := range list.GetServices() {
-		if cl.GetIdentifier() == server && cl.GetName() == "filecopier" {
-			conn, err := grpc.Dial(cl.GetIp()+":"+strconv.Itoa(int(cl.GetPort())), grpc.WithInsecure())
-			if err != nil {
-				return fmt.Errorf("Failed to dial: %v", err)
-			}
-
-			defer conn.Close()
-			client := pb.NewFileCopierServiceClient(conn)
-			accepts, err := client.Accepts(ctx, &pb.AcceptsRequest{})
-			if err != nil {
-				fmt.Errorf("Failed on accept: %v", err)
-				return err
-			}
-
-			for _, a := range accepts.Server {
-				if a == p.server {
-					return nil
-				}
-			}
-			return fmt.Errorf("Match not found (%v), and %v", accepts, p.server)
-		}
-
-	}
-
-	return status.Errorf(codes.NotFound, "Server %v was not found", server)
+	client := pb.NewFileCopierServiceClient(conn)
+	_, err = client.Accepts(ctx, &pb.AcceptsRequest{Server: server})
+	return err
 }
 
 //Server main server type
@@ -229,7 +200,7 @@ func (s *Server) shareKeys(ctx context.Context) error {
 					client := pb.NewFileCopierServiceClient(conn)
 					_, err := client.ReceiveKey(ctx, &pb.KeyRequest{Key: s.mykey, Server: s.GoServer.Registry.Identifier})
 					code := status.Convert(err).Code()
-					if code != codes.OK || code != codes.Unavailable {
+					if code != codes.OK && code != codes.Unavailable {
 						log.Fatalf("Unable to receive key: %v", err)
 					}
 				}
