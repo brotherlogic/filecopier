@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 
 	"github.com/brotherlogic/goserver/utils"
 	"google.golang.org/grpc"
@@ -16,11 +15,7 @@ import (
 )
 
 func main() {
-	host, port, err := utils.Resolve("filecopier", "filecopier-cli")
-	if err != nil {
-		log.Fatalf("Unable to reach copier: %v", err)
-	}
-	conn, err := grpc.Dial(host+":"+strconv.Itoa(int(port)), grpc.WithInsecure())
+	conn, err := grpc.Dial("runner:57704", grpc.WithInsecure())
 	defer conn.Close()
 
 	if err != nil {
