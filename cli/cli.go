@@ -39,8 +39,9 @@ func main() {
 			fmt.Printf("Accepts: '%v'\n", server)
 		}
 	} else {
-		resp, err := client.QueueCopy(ctx, &pb.CopyRequest{InputFile: os.Args[1], InputServer: os.Args[2], OutputFile: os.Args[3], OutputServer: os.Args[4]})
+		q := &pb.CopyRequest{InputFile: os.Args[1], InputServer: os.Args[2], OutputFile: os.Args[3], OutputServer: os.Args[4]}
+		resp, err := client.QueueCopy(ctx, q)
 
-		fmt.Printf("%v and %v\n", resp, err)
+		fmt.Printf("%v -> %v and %v\n", q, resp, err)
 	}
 }
