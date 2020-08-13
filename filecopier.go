@@ -229,7 +229,7 @@ func (s *Server) shareKeys(ctx context.Context) error {
 					client := pb.NewFileCopierServiceClient(conn)
 					_, err := client.ReceiveKey(ctx, &pb.KeyRequest{Key: s.mykey, Server: s.GoServer.Registry.Identifier})
 					code := status.Convert(err).Code()
-					if code != codes.Ok || code != codes.Unavailable {
+					if code != codes.OK || code != codes.Unavailable {
 						log.Fatalf("Unable to receive key: %v", err)
 					}
 				}
