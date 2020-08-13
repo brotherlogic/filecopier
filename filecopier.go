@@ -291,12 +291,14 @@ func (s *Server) runCopy(in *pb.CopyRequest) error {
 	err = command.Start()
 	if err != nil {
 		s.lastError = fmt.Sprintf("CS %v", err)
+		s.Log(fmt.Sprintf("Error running copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output))
 		return fmt.Errorf("Error running copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
 	err = command.Wait()
 
 	if err != nil {
 		s.lastError = fmt.Sprintf("CW %v", err)
+		s.Log(fmt.Sprintf("Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output))
 		return fmt.Errorf("Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
 
@@ -312,6 +314,7 @@ func (s *Server) runCopy(in *pb.CopyRequest) error {
 	}
 
 	s.lastError = fmt.Sprintf("DONE %v", output)
+	s.Log(fmt.Sprintf("Completed %v -> %v with %v in %v", copyIn, copyOut, output, s.copyTime))
 
 	//Perform the callback if needed - this is fire and forget
 	if len(in.GetCallback()) > 0 {
