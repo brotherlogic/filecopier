@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	conn, err := grpc.Dial("runner:57704", grpc.WithInsecure())
+	conn, err := grpc.Dial("argon:57704", grpc.WithInsecure())
 	defer conn.Close()
 
 	if err != nil {
@@ -27,12 +27,12 @@ func main() {
 	defer cancel()
 
 	if os.Args[1] == "list" {
-		resp, err := client.Accepts(ctx, &pb.AcceptsRequest{Server: "argon"})
+		resp, err := client.Accepts(ctx, &pb.AcceptsRequest{Server: "runner"})
 		if err != nil {
 			log.Fatalf("Error: %v", err)
 		}
 		if len(resp.Server) == 0 {
-			fmt.Printf("Server accepts nothing!\n")
+			fmt.Printf("Server accepts nothing %v!\n", resp)
 		}
 
 		for _, server := range resp.Server {
