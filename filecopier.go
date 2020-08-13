@@ -260,7 +260,7 @@ func (s *Server) runCopy(in *pb.CopyRequest) error {
 
 	copyIn := s.makeCopyString(in.InputServer, in.InputFile)
 	copyOut := s.makeCopyString(in.OutputServer, in.OutputFile)
-	command := exec.Command(s.command, "-p", "-o", "'StrictHostKeyChecking no'", copyIn, copyOut)
+	command := exec.Command(s.command, "-p", "-o", "StrictHostKeyChecking=no", copyIn, copyOut)
 
 	output := ""
 	out, err := command.StderrPipe()
