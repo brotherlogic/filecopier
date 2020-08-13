@@ -141,6 +141,9 @@ func (s *Server) keySetup() error {
 	for _, val := range keys {
 		s.mykey = val
 	}
+
+	s.Log(fmt.Sprintf("Read keys-> %v, my key is %v", s.keys, s.mykey))
+
 	return nil
 }
 
