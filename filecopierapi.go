@@ -18,7 +18,7 @@ import (
 func (s *Server) ReceiveKey(ctx context.Context, in *pb.KeyRequest) (*pb.KeyResponse, error) {
 	if val, ok := s.keys[in.Server]; ok {
 		if val == in.Key {
-			return &pb.KeyResponse{}, nil
+			return &pb.KeyResponse{Mykey: s.mykey}, nil
 		}
 	}
 
