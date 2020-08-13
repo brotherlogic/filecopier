@@ -228,7 +228,8 @@ func (s *Server) shareKeys(ctx context.Context) error {
 				if err == nil {
 					client := pb.NewFileCopierServiceClient(conn)
 					_, err := client.ReceiveKey(ctx, &pb.KeyRequest{Key: s.mykey, Server: s.GoServer.Registry.Identifier})
-					if err != nil {
+					code := status.Convert(err).Code()
+					if code != codes.Ok || code != codes.Unavailable {
 						log.Fatalf("Unable to receive key: %v", err)
 					}
 				}
@@ -373,11 +374,6 @@ func main() {
 	}
 
 	err = server.RegisterServerV2("filecopier", false, true)
-
-	// Share all our keys
-	ctx, cancel := utils.ManualContext("filecopier", "filecopier-start", time.Minute, true)
-	server.shareKeys(ctx)
-	cancel()
 
 	if err == nil {
 		//Set the server name
