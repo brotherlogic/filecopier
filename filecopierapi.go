@@ -37,7 +37,13 @@ func (s *Server) Accepts(ctx context.Context, in *pb.AcceptsRequest) (*pb.Accept
 		}
 	}
 
-	_, err := s.ReceiveKey(ctx, &pb.KeyRequest{Key: s.mykey, Server: s.GoServer.Registry.Identifier})
+	conn, err := s.FDialSpecificServer(ctx, "filecopier", in.GetServer())
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	client := pb.NewFileCopierServiceClient(conn)
+	_, err = client.ReceiveKey(ctx, &pb.KeyRequest{Key: s.mykey, Server: s.GoServer.Registry.Identifier})
 	return &pb.AcceptsResponse{}, err
 }
 
