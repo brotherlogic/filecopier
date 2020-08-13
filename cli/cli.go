@@ -27,7 +27,7 @@ func main() {
 	defer cancel()
 
 	if os.Args[1] == "list" {
-		resp, err := client.Accepts(ctx, &pb.AcceptsRequest{Server: "argon"})
+		resp, err := client.Accepts(ctx, &pb.AcceptsRequest{Server: "newrunner"})
 		if err != nil {
 			log.Fatalf("Error: %v", err)
 		}

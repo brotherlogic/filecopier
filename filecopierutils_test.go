@@ -7,12 +7,6 @@ import (
 	"golang.org/x/net/context"
 )
 
-func TestServerExpression(t *testing.T) {
-	str := makeCopyString("server", "file")
-	if str != "server:file" {
-		t.Errorf("Bad copy string: %v", str)
-	}
-}
 func TestBadRead(t *testing.T) {
 	_, err := readKeys("madeup/blah.txt")
 	if err == nil {

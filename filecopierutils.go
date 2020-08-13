@@ -44,8 +44,8 @@ func (s *Server) runQueue() {
 	}
 }
 
-func makeCopyString(server, file string) string {
-	if len(server) == 0 {
+func (s *Server) makeCopyString(server, file string) string {
+	if len(server) == 0 || server == s.Registry.GetIdentifier() {
 		return file
 	}
 
