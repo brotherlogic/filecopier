@@ -222,13 +222,15 @@ func (s *Server) shareKeys(ctx context.Context) error {
 
 	if err == nil {
 		for _, e := range entities {
-			conn, err := s.FDial(e)
-			defer conn.Close()
-			if err == nil {
-				client := pb.NewFileCopierServiceClient(conn)
-				_, err := client.ReceiveKey(ctx, &pb.KeyRequest{Key: s.mykey, Server: s.GoServer.Registry.Identifier})
-				if err != nil {
-					log.Fatalf("Unable to receive key: %v", err)
+			if !strings.HasPrefix(e, s.Registry.GetIdentifier()) {
+				conn, err := s.FDial(e)
+				defer conn.Close()
+				if err == nil {
+					client := pb.NewFileCopierServiceClient(conn)
+					_, err := client.ReceiveKey(ctx, &pb.KeyRequest{Key: s.mykey, Server: s.GoServer.Registry.Identifier})
+					if err != nil {
+						log.Fatalf("Unable to receive key: %v", err)
+					}
 				}
 			}
 		}
