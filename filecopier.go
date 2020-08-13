@@ -349,7 +349,7 @@ func main() {
 
 	if err == nil {
 		//Set the server name
-		server.checker = &prodChecker{server: server.Registry.Identifier}
+		server.checker = &prodChecker{server: server.Registry.Identifier, dial: server.FDialSpecificServer}
 
 		// Run the queue processor
 		go server.runQueue()
