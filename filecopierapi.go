@@ -33,7 +33,7 @@ func (s *Server) ReceiveKey(ctx context.Context, in *pb.KeyRequest) (*pb.KeyResp
 func (s *Server) Accepts(ctx context.Context, in *pb.AcceptsRequest) (*pb.AcceptsResponse, error) {
 	for key := range s.keys {
 		if key == in.GetServer() {
-			return &pb.AcceptsResponse{}, nil
+			return &pb.AcceptsResponse{Type: "found-in-server"}, nil
 		}
 	}
 
@@ -44,7 +44,7 @@ func (s *Server) Accepts(ctx context.Context, in *pb.AcceptsRequest) (*pb.Accept
 	defer conn.Close()
 	client := pb.NewFileCopierServiceClient(conn)
 	_, err = client.ReceiveKey(ctx, &pb.KeyRequest{Key: s.mykey, Server: s.GoServer.Registry.Identifier})
-	return &pb.AcceptsResponse{}, err
+	return &pb.AcceptsResponse{Type: "key-passed"}, err
 }
 
 func (s *Server) reduce() {
