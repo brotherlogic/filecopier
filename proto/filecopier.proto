@@ -36,7 +36,9 @@ message KeyRequest {
 
 message KeyResponse {}
 
-message AcceptsRequest {}
+message AcceptsRequest {
+  string server = 1;
+}
 
 message AcceptsResponse {
   repeated string server = 1;

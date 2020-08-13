@@ -31,11 +31,14 @@ func (s *Server) ReceiveKey(ctx context.Context, in *pb.KeyRequest) (*pb.KeyResp
 
 // Accepts pulls in a key
 func (s *Server) Accepts(ctx context.Context, in *pb.AcceptsRequest) (*pb.AcceptsResponse, error) {
-	resp := &pb.AcceptsResponse{}
 	for key := range s.keys {
-		resp.Server = append(resp.Server, key)
+		if key == in.GetServer() {
+			return &pb.AcceptsResponse{}, nil
+		}
 	}
-	return resp, nil
+
+	_, err := s.ReceiveKey(ctx, &pb.KeyRequest{Key: s.mykey, Server: s.GoServer.Registry.Identifier})
+	return &pb.AcceptsResponse{}, err
 }
 
 func (s *Server) reduce() {
