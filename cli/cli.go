@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	conn, err := grpc.Dial("runner:57704", grpc.WithInsecure())
+	conn, err := grpc.Dial("argon:57704", grpc.WithInsecure())
 	defer conn.Close()
 
 	if err != nil {
