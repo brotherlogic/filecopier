@@ -42,6 +42,7 @@ message AcceptsRequest {
 
 message AcceptsResponse {
   repeated string server = 1;
+  string type = 2;
 }
 
 service FileCopierService {

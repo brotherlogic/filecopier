@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	conn, err := grpc.Dial("argon:57704", grpc.WithInsecure())
+	conn, err := grpc.Dial("runner:57704", grpc.WithInsecure())
 	defer conn.Close()
 
 	if err != nil {
@@ -27,7 +27,7 @@ func main() {
 	defer cancel()
 
 	if os.Args[1] == "list" {
-		resp, err := client.Accepts(ctx, &pb.AcceptsRequest{})
+		resp, err := client.Accepts(ctx, &pb.AcceptsRequest{Server: "argon"})
 		if err != nil {
 			log.Fatalf("Error: %v", err)
 		}
