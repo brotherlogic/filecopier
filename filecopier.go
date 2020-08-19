@@ -352,6 +352,7 @@ func main() {
 	}
 
 	err = server.RegisterServerV2("filecopier", false, true)
+	server.DiskLog = true
 
 	if err == nil {
 		//Set the server name
