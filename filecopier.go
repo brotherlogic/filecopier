@@ -68,7 +68,7 @@ func (p *prodChecker) check(server string) error {
 	defer conn.Close()
 
 	client := pb.NewFileCopierServiceClient(conn)
-	_, err = client.Accepts(ctx, &pb.AcceptsRequest{Server: server})
+	_, err = client.Accepts(ctx, &pb.AcceptsRequest{Server: p.server})
 	return err
 }
 
