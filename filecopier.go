@@ -89,8 +89,6 @@ type Server struct {
 	lastCopyDetails string
 	copyTime        time.Duration
 	queue           []*queueEntry
-	currout         string
-	currsout        string
 	tCopyTime       time.Duration
 	queueChan       chan *queueEntry
 }
@@ -112,8 +110,6 @@ func Init() *Server {
 		"",
 		0,
 		make([]*queueEntry, 0),
-		"",
-		"",
 		0,
 		make(chan *queueEntry, 100),
 	}
@@ -170,27 +166,7 @@ func (s *Server) Mote(ctx context.Context, master bool) error {
 
 // GetState gets the state of the server
 func (s *Server) GetState() []*pbg.State {
-	s.ccopiesMutex.Lock()
-	defer s.ccopiesMutex.Unlock()
-
-	inQueue := int64(0)
-	for _, q := range s.queue {
-		if q.resp.Status == pb.CopyStatus_IN_QUEUE {
-			inQueue++
-		}
-	}
-	return []*pbg.State{
-		&pbg.State{Key: "keys", Value: int64(len(s.keys))},
-		&pbg.State{Key: "copy_start", TimeValue: s.lastCopyTime.Unix()},
-		&pbg.State{Key: "copies", Value: s.copies},
-		&pbg.State{Key: "con_copies", Value: s.ccopies},
-		&pbg.State{Key: "last_copy", Text: s.lastCopyDetails},
-		&pbg.State{Key: "queued", Value: int64(len(s.queue))},
-		&pbg.State{Key: "waiting", Value: inQueue},
-		&pbg.State{Key: "copy_time", TimeDuration: s.copyTime.Nanoseconds()},
-		&pbg.State{Key: "current_err_output", Text: s.currout},
-		&pbg.State{Key: "current_std_output", Text: s.currsout},
-	}
+	return []*pbg.State{}
 }
 
 func (s *Server) shareKeys(ctx context.Context) error {
@@ -270,19 +246,6 @@ func (s *Server) runCopy(in *pb.CopyRequest) error {
 		go func() {
 			for scanner != nil && scanner.Scan() {
 				output += scanner.Text()
-				s.currout = fmt.Sprintf("%v->%v: %v", in.InputServer, in.OutputServer, output)
-			}
-			out.Close()
-		}()
-
-	}
-
-	sout, err := command.StdoutPipe()
-	if err == nil && sout != nil {
-		scanner := bufio.NewScanner(sout)
-		go func() {
-			for scanner != nil && scanner.Scan() {
-				s.currsout = fmt.Sprintf("%v->%v: %v", in.InputServer, in.OutputServer, output)
 			}
 			out.Close()
 		}()
@@ -303,8 +266,8 @@ func (s *Server) runCopy(in *pb.CopyRequest) error {
 		return fmt.Errorf("Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
 
-	if len(s.currout) > 0 && !strings.Contains("lost connection", s.currout) {
-		s.RaiseIssue("Copy Error", fmt.Sprintf("[%v] Error on copy: %v (%v -> %v)", s.Registry.Identifier, s.currout, copyIn, copyOut))
+	if len(output) > 0 && !strings.Contains("lost connection", output) {
+		s.RaiseIssue("Copy Error", fmt.Sprintf("[%v] Error on copy: %v (%v -> %v)", s.Registry.Identifier, output, copyIn, copyOut))
 	}
 
 	s.copyTime = time.Now().Sub(stTime)
