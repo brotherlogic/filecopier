@@ -11,9 +11,7 @@ import (
 	"sync"
 	"time"
 
-	pb "github.com/brotherlogic/filecopier/proto"
 	"github.com/brotherlogic/goserver"
-	pbg "github.com/brotherlogic/goserver/proto"
 	"github.com/brotherlogic/goserver/utils"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -21,6 +19,9 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	pb "github.com/brotherlogic/filecopier/proto"
+	pbg "github.com/brotherlogic/goserver/proto"
 )
 
 var (
@@ -303,7 +304,7 @@ func (s *Server) runCopy(in *pb.CopyRequest) error {
 	}
 
 	if len(s.currout) > 0 && !strings.Contains("lost connection", s.currout) {
-		s.RaiseIssue("Copy Error", fmt.Sprintf("[%v] Error on copy: %v", s.Registry.Identifier, s.currout))
+		s.RaiseIssue("Copy Error", fmt.Sprintf("[%v] Error on copy: %v (%v -> %v)", s.Registry.Identifier, s.currout, copyIn, copyOut))
 	}
 
 	s.copyTime = time.Now().Sub(stTime)
