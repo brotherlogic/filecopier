@@ -34,6 +34,7 @@ func InitTestServer() *Server {
 	s.checker = &testChecker{}
 	s.SkipLog = true
 	s.SkipIssue = true
+
 	return s
 }
 
