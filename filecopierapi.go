@@ -53,7 +53,7 @@ func (s *Server) Accepts(ctx context.Context, in *pb.AcceptsRequest) (*pb.Accept
 	}
 
 	if len(resp.GetMykey()) == 0 {
-		return nil, fmt.Errorf("Bad key passed in accepts: %v", resp)
+		return nil, fmt.Errorf("bad key passed in accepts: %v", resp)
 	}
 
 	s.keys[in.Server] = resp.GetMykey()
