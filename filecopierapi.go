@@ -33,11 +33,7 @@ func (s *Server) ReceiveKey(ctx context.Context, in *pb.KeyRequest) (*pb.KeyResp
 func (s *Server) Accepts(ctx context.Context, in *pb.AcceptsRequest) (*pb.AcceptsResponse, error) {
 	for key := range s.keys {
 		if key == in.GetServer() {
-			if key != "clust7" {
-				return &pb.AcceptsResponse{Type: "found-in-server"}, nil
-			} else {
-				s.RaiseIssue("Skipping Clust7", "I'm skipping clust7")
-			}
+			return &pb.AcceptsResponse{Type: "found-in-server"}, nil
 		}
 	}
 
