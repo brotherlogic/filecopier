@@ -90,7 +90,7 @@ func (s *Server) QueueCopy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyRes
 			if len(q.resp.GetError()) > 0 {
 				err = status.Errorf(codes.Code(q.resp.GetErrorCode()), "%v", q.resp.GetError())
 			}
-			s.Log(fmt.Sprintf("Found in queue: %v", ind))
+			s.Log(fmt.Sprintf("Found (%v) in queue: %v -> %v", q.req, ind, q.resp))
 			return q.resp, err
 		}
 	}
