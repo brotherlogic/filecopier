@@ -8,7 +8,10 @@ import (
 	"strings"
 
 	pb "github.com/brotherlogic/filecopier/proto"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"golang.org/x/net/context"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
@@ -32,15 +35,29 @@ func (s *Server) sortQueue(ctx context.Context) {
 
 }
 
+var (
+	retries = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "filecopier_retries",
+		Help: "The number of keys",
+	})
+)
+
 func (s *Server) runQueue() {
 	for entry := range s.queueChan {
 		entry.resp.Status = pb.CopyStatus_IN_PROGRESS
 		err := s.runCopy(entry.req)
-		if err != nil {
-			entry.resp.Error = fmt.Sprintf("%v", err)
-			entry.resp.ErrorCode = int32(status.Convert(err).Code())
+		if status.Convert(err).Code() == codes.Unavailable {
+			entry.resp.Status = pb.CopyStatus_IN_QUEUE
+			entry.resp.Repeats++
+			retries.Inc()
+			s.queueChan <- entry
+		} else {
+			if err != nil {
+				entry.resp.Error = fmt.Sprintf("%v", err)
+				entry.resp.ErrorCode = int32(status.Convert(err).Code())
+			}
+			entry.resp.Status = pb.CopyStatus_COMPLETE
 		}
-		entry.resp.Status = pb.CopyStatus_COMPLETE
 	}
 }
 

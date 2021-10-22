@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package filecopier;
 
+option go_package = "github.com/brotherlogic/filecopier/proto";
+
 enum CopyStatus {
   UNKNOWN = 0;
   IN_QUEUE = 1;
@@ -27,6 +29,7 @@ message CopyResponse {
   int32 index_in_queue = 5;
   int32 priority = 6;
   int32 error_code = 7;
+  int32 repeats = 8;
 }
 
 message KeyRequest {
