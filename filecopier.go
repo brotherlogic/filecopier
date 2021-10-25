@@ -64,7 +64,7 @@ func (p *prodChecker) check(server string) error {
 
 	conn, err := p.dial(ctx, "filecopier", server)
 	if err != nil {
-		return fmt.Errorf("Failed to dial: %v", err)
+		return err
 	}
 	defer conn.Close()
 
