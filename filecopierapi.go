@@ -31,8 +31,8 @@ func (s *Server) ReceiveKey(ctx context.Context, in *pb.KeyRequest) (*pb.KeyResp
 
 // Accepts pulls in a key
 func (s *Server) Accepts(ctx context.Context, in *pb.AcceptsRequest) (*pb.AcceptsResponse, error) {
-	for key := range s.keys {
-		if key == in.GetServer() {
+	for key, keyv := range s.keys {
+		if key == in.GetServer() && in.GetKey() == keyv {
 			return &pb.AcceptsResponse{Type: "found-in-server"}, nil
 		}
 	}

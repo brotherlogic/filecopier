@@ -55,6 +55,7 @@ type checker interface {
 
 type prodChecker struct {
 	server string
+	key    string
 	dial   func(ctx context.Context, job, server string) (*grpc.ClientConn, error)
 }
 
@@ -69,7 +70,7 @@ func (p *prodChecker) check(server string) error {
 	defer conn.Close()
 
 	client := pb.NewFileCopierServiceClient(conn)
-	_, err = client.Accepts(ctx, &pb.AcceptsRequest{Server: p.server})
+	_, err = client.Accepts(ctx, &pb.AcceptsRequest{Server: p.server, Key: p.key})
 	return err
 }
 
@@ -320,7 +321,11 @@ func main() {
 
 	if err == nil {
 		//Set the server name
-		server.checker = &prodChecker{server: server.Registry.Identifier, dial: server.FDialSpecificServer}
+		server.checker = &prodChecker{
+			key:    server.mykey,
+			server: server.Registry.Identifier,
+			dial:   server.FDialSpecificServer,
+		}
 
 		// Run the queue processor
 		go server.runQueue()

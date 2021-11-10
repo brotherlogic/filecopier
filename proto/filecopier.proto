@@ -43,6 +43,7 @@ message KeyResponse {
 
 message AcceptsRequest {
   string server = 1;
+  string key = 2;
 }
 
 message AcceptsResponse {

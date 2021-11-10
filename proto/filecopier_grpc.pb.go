@@ -11,7 +11,6 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-// Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
 // FileCopierServiceClient is the client API for FileCopierService service.
@@ -117,7 +116,7 @@ type UnsafeFileCopierServiceServer interface {
 }
 
 func RegisterFileCopierServiceServer(s grpc.ServiceRegistrar, srv FileCopierServiceServer) {
-	s.RegisterService(&FileCopierService_ServiceDesc, srv)
+	s.RegisterService(&_FileCopierService_serviceDesc, srv)
 }
 
 func _FileCopierService_DirCopy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -210,10 +209,7 @@ func _FileCopierService_Accepts_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-// FileCopierService_ServiceDesc is the grpc.ServiceDesc for FileCopierService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var FileCopierService_ServiceDesc = grpc.ServiceDesc{
+var _FileCopierService_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "filecopier.FileCopierService",
 	HandlerType: (*FileCopierServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
@@ -289,7 +285,7 @@ type UnsafeFileCopierCallbackServer interface {
 }
 
 func RegisterFileCopierCallbackServer(s grpc.ServiceRegistrar, srv FileCopierCallbackServer) {
-	s.RegisterService(&FileCopierCallback_ServiceDesc, srv)
+	s.RegisterService(&_FileCopierCallback_serviceDesc, srv)
 }
 
 func _FileCopierCallback_Callback_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -310,10 +306,7 @@ func _FileCopierCallback_Callback_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
-// FileCopierCallback_ServiceDesc is the grpc.ServiceDesc for FileCopierCallback service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var FileCopierCallback_ServiceDesc = grpc.ServiceDesc{
+var _FileCopierCallback_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "filecopier.FileCopierCallback",
 	HandlerType: (*FileCopierCallbackServer)(nil),
 	Methods: []grpc.MethodDesc{
