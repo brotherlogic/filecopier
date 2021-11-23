@@ -82,18 +82,24 @@ var (
 
 // QueueCopy copies over a key using a queue
 func (s *Server) QueueCopy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse, error) {
+	var nq []*queueEntry
 	for ind, q := range s.queue {
 		if in.InputServer == q.req.InputServer && in.OutputServer == q.req.OutputServer &&
 			in.InputFile == q.req.InputFile && in.OutputFile == q.req.OutputFile {
-			q.resp.IndexInQueue = int32(ind)
-			var err error
-			if len(q.resp.GetError()) > 0 {
-				err = status.Errorf(codes.Code(q.resp.GetErrorCode()), "%v", q.resp.GetError())
+			if !in.GetOverride() {
+				q.resp.IndexInQueue = int32(ind)
+				var err error
+				if len(q.resp.GetError()) > 0 {
+					err = status.Errorf(codes.Code(q.resp.GetErrorCode()), "%v", q.resp.GetError())
+				}
+				s.Log(fmt.Sprintf("Found (%v) in queue: %v -> %v", q.req, ind, q.resp))
+				return q.resp, err
 			}
-			s.Log(fmt.Sprintf("Found (%v) in queue: %v -> %v", q.req, ind, q.resp))
-			return q.resp, err
+		} else {
+			nq = append(nq, q)
 		}
 	}
+	s.queue = nq
 
 	r := &pb.CopyResponse{Status: pb.CopyStatus_IN_QUEUE, TimeInQueue: time.Now().UnixNano()}
 	entry := &queueEntry{req: in, resp: r, timeAdded: time.Now()}

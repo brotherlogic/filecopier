@@ -19,6 +19,7 @@ message CopyRequest {
   int32 priority = 5;
   int64 key = 6;
   string callback = 7;
+  bool override = 8;
 }
 
 message CopyResponse {
