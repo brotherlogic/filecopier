@@ -22,6 +22,8 @@ type FileCopierServiceClient interface {
 	Copy(ctx context.Context, in *CopyRequest, opts ...grpc.CallOption) (*CopyResponse, error)
 	ReceiveKey(ctx context.Context, in *KeyRequest, opts ...grpc.CallOption) (*KeyResponse, error)
 	Accepts(ctx context.Context, in *AcceptsRequest, opts ...grpc.CallOption) (*AcceptsResponse, error)
+	Exists(ctx context.Context, in *ExistsRequest, opts ...grpc.CallOption) (*ExistsResponse, error)
+	Replicate(ctx context.Context, in *ReplicateRequest, opts ...grpc.CallOption) (*ReplicateResponse, error)
 }
 
 type fileCopierServiceClient struct {
@@ -77,6 +79,24 @@ func (c *fileCopierServiceClient) Accepts(ctx context.Context, in *AcceptsReques
 	return out, nil
 }
 
+func (c *fileCopierServiceClient) Exists(ctx context.Context, in *ExistsRequest, opts ...grpc.CallOption) (*ExistsResponse, error) {
+	out := new(ExistsResponse)
+	err := c.cc.Invoke(ctx, "/filecopier.FileCopierService/Exists", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *fileCopierServiceClient) Replicate(ctx context.Context, in *ReplicateRequest, opts ...grpc.CallOption) (*ReplicateResponse, error) {
+	out := new(ReplicateResponse)
+	err := c.cc.Invoke(ctx, "/filecopier.FileCopierService/Replicate", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FileCopierServiceServer is the server API for FileCopierService service.
 // All implementations should embed UnimplementedFileCopierServiceServer
 // for forward compatibility
@@ -86,6 +106,8 @@ type FileCopierServiceServer interface {
 	Copy(context.Context, *CopyRequest) (*CopyResponse, error)
 	ReceiveKey(context.Context, *KeyRequest) (*KeyResponse, error)
 	Accepts(context.Context, *AcceptsRequest) (*AcceptsResponse, error)
+	Exists(context.Context, *ExistsRequest) (*ExistsResponse, error)
+	Replicate(context.Context, *ReplicateRequest) (*ReplicateResponse, error)
 }
 
 // UnimplementedFileCopierServiceServer should be embedded to have forward compatible implementations.
@@ -106,6 +128,12 @@ func (UnimplementedFileCopierServiceServer) ReceiveKey(context.Context, *KeyRequ
 }
 func (UnimplementedFileCopierServiceServer) Accepts(context.Context, *AcceptsRequest) (*AcceptsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Accepts not implemented")
+}
+func (UnimplementedFileCopierServiceServer) Exists(context.Context, *ExistsRequest) (*ExistsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Exists not implemented")
+}
+func (UnimplementedFileCopierServiceServer) Replicate(context.Context, *ReplicateRequest) (*ReplicateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Replicate not implemented")
 }
 
 // UnsafeFileCopierServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -209,6 +237,42 @@ func _FileCopierService_Accepts_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _FileCopierService_Exists_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExistsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FileCopierServiceServer).Exists(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/filecopier.FileCopierService/Exists",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FileCopierServiceServer).Exists(ctx, req.(*ExistsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _FileCopierService_Replicate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReplicateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FileCopierServiceServer).Replicate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/filecopier.FileCopierService/Replicate",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FileCopierServiceServer).Replicate(ctx, req.(*ReplicateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _FileCopierService_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "filecopier.FileCopierService",
 	HandlerType: (*FileCopierServiceServer)(nil),
@@ -232,6 +296,14 @@ var _FileCopierService_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Accepts",
 			Handler:    _FileCopierService_Accepts_Handler,
+		},
+		{
+			MethodName: "Exists",
+			Handler:    _FileCopierService_Exists_Handler,
+		},
+		{
+			MethodName: "Replicate",
+			Handler:    _FileCopierService_Replicate_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

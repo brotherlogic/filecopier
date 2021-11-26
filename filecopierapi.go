@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	pb "github.com/brotherlogic/filecopier/proto"
@@ -125,4 +126,36 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 	err := s.runCopy(in)
 	defer s.reduce()
 	return &pb.CopyResponse{MillisToCopy: time.Now().Sub(t).Nanoseconds() / 1000000}, err
+}
+
+func (s *Server) Exists(ctx context.Context, req *pb.ExistsRequest) (*pb.ExistsResponse, error) {
+	_, err := os.Stat(req.GetPath())
+	if os.IsNotExist(err) {
+		return &pb.ExistsResponse{}, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &pb.ExistsResponse{Exists: true}, nil
+}
+
+func (s *Server) Replicate(ctx context.Context, req *pb.ReplicateRequest) (*pb.ReplicateResponse, error) {
+	servers, err := s.FFind(ctx, "filecopier")
+	if err != nil {
+		return nil, err
+	}
+	for _, se := range servers {
+		elems := strings.Split(se, ":")
+		_, err = s.Copy(ctx, &pb.CopyRequest{
+			OutputFile:   req.GetPath(),
+			OutputServer: elems[0],
+			InputFile:    req.GetPath(),
+			InputServer:  s.Registry.Identifier,
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &pb.ReplicateResponse{Servers: int32(len(servers))}, nil
 }

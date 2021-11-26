@@ -52,12 +52,30 @@ message AcceptsResponse {
   string type = 2;
 }
 
+message ExistsRequest{
+  string path = 1;
+}
+
+message ExistsResponse {
+  bool exists = 2;
+}
+
+message ReplicateRequest{
+  string path = 1;
+}
+
+message ReplicateResponse {
+  int32 servers = 1;
+}
+
 service FileCopierService {
   rpc DirCopy(CopyRequest) returns (CopyResponse) {};
   rpc QueueCopy(CopyRequest) returns (CopyResponse) {};
   rpc Copy(CopyRequest) returns (CopyResponse) {};
   rpc ReceiveKey(KeyRequest) returns (KeyResponse) {};
   rpc Accepts(AcceptsRequest) returns (AcceptsResponse) {};
+  rpc Exists(ExistsRequest) returns (ExistsResponse) {};
+  rpc Replicate(ReplicateRequest) returns (ReplicateResponse) {};
 }
 
 message CallbackRequest {
