@@ -145,15 +145,17 @@ func (s *Server) Replicate(ctx context.Context, req *pb.ReplicateRequest) (*pb.R
 		return nil, err
 	}
 	for _, se := range servers {
-		elems := strings.Split(se, ":")
-		_, err = s.Copy(ctx, &pb.CopyRequest{
-			OutputFile:   req.GetPath(),
-			OutputServer: elems[0],
-			InputFile:    req.GetPath(),
-			InputServer:  s.Registry.Identifier,
-		})
-		if err != nil {
-			return nil, err
+		if !strings.HasPrefix(se, s.Registry.Identifier) {
+			elems := strings.Split(se, ":")
+			_, err = s.Copy(ctx, &pb.CopyRequest{
+				OutputFile:   req.GetPath(),
+				OutputServer: elems[0],
+				InputFile:    req.GetPath(),
+				InputServer:  s.Registry.Identifier,
+			})
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
