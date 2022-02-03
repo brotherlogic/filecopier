@@ -116,7 +116,7 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 	s.ccopiesMutex.Lock()
 	if s.ccopies > 0 {
 		s.ccopiesMutex.Unlock()
-		return nil, fmt.Errorf("Too many concurrent copies")
+		return nil, fmt.Errorf("Too many concurrent copies from %v", s.Registry.Identifier)
 	}
 
 	s.ccopies++
