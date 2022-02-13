@@ -330,6 +330,10 @@ func main() {
 		// Run the queue processor
 		go server.runQueue()
 
+		if server.Registry.Identifier == "rdisplay" {
+			server.NoProm = true
+		}
+
 		fmt.Printf("%v\n", server.Serve())
 	}
 }
