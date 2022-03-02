@@ -114,7 +114,7 @@ func Init() *Server {
 		make([]*queueEntry, 0),
 		0,
 		make(chan *queueEntry, 100),
-		nil
+		nil,
 	}
 
 	s.checker = &prodChecker{dial: s.FDialSpecificServer}
