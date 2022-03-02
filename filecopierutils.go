@@ -6,6 +6,7 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"time"
 
 	pb "github.com/brotherlogic/filecopier/proto"
 	"github.com/prometheus/client_golang/prometheus"
@@ -58,6 +59,8 @@ func (s *Server) runQueue() {
 			}
 			entry.resp.Status = pb.CopyStatus_COMPLETE
 		}
+
+		time.Sleep(time.Second)
 	}
 }
 
