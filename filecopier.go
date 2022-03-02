@@ -92,6 +92,7 @@ type Server struct {
 	queue           []*queueEntry
 	tCopyTime       time.Duration
 	queueChan       chan *queueEntry
+	current         *pb.CopyRequest
 }
 
 // Init builds the server
@@ -113,6 +114,7 @@ func Init() *Server {
 		make([]*queueEntry, 0),
 		0,
 		make(chan *queueEntry, 100),
+		nil
 	}
 
 	s.checker = &prodChecker{dial: s.FDialSpecificServer}
@@ -214,6 +216,7 @@ var (
 )
 
 func (s *Server) runCopy(in *pb.CopyRequest) error {
+	s.current = in
 	copies.With(prometheus.Labels{"file": in.InputFile, "destination": in.OutputServer}).Inc()
 	stTime := time.Now()
 	s.lastCopyTime = time.Now()
