@@ -50,8 +50,10 @@ func (s *Server) runQueue() {
 		if status.Convert(err).Code() == codes.Unavailable {
 			entry.resp.Status = pb.CopyStatus_IN_QUEUE
 			entry.resp.Repeats++
-			retries.Inc()
-			s.queueChan <- entry
+			if entry.resp.Repeats < 1000 {
+				retries.Inc()
+				s.queueChan <- entry
+			}
 		} else {
 			if err != nil {
 				entry.resp.Error = fmt.Sprintf("%v", err)
