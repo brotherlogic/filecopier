@@ -290,6 +290,7 @@ func (s *Server) runCopy(in *pb.CopyRequest) error {
 		if err == nil {
 			defer conn.Close()
 			ctx, cancel := utils.ManualContext("filecopier-callback", time.Minute)
+			s.CtxLog(ctx, fmt.Sprintf("Callingback: %v", in.GetCallback()))
 			client := pb.NewFileCopierCallbackClient(conn)
 			client.Callback(ctx, &pb.CallbackRequest{Key: in.GetKey()})
 			cancel()
