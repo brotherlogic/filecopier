@@ -276,7 +276,7 @@ func (s *Server) runCopy(in *pb.CopyRequest) error {
 		} else if strings.Contains("differs", output) {
 			s.RaiseIssue("Found mismatch error", fmt.Sprintf("[%v] Error on copy: %v (%v -> %v)", s.Registry.Identifier, output, copyIn, copyOut))
 		} else {
-			s.RaiseIssue("Copy Error", fmt.Sprintf("[%v] Error on copy: %v (%v -> %v)", s.Registry.Identifier, output, copyIn, copyOut))
+			s.RaiseIssue("Copy Error", fmt.Sprintf("[%v] Error on the copy: %v (%v -> %v)", s.Registry.Identifier, output, copyIn, copyOut))
 		}
 	}
 
