@@ -271,9 +271,9 @@ func (s *Server) runCopy(in *pb.CopyRequest) error {
 	}
 
 	if len(output) > 0 && !strings.Contains("lost connection", output) {
-		if strings.Contains("Permanently added", output) {
+		if strings.Contains(output, "Permanently added") {
 			//Ignore this
-		} else if strings.Contains("differs", output) {
+		} else if strings.Contains(output, "differs") {
 			s.RaiseIssue("Found mismatch error", fmt.Sprintf("[%v] Mismatch Error on copy: %v (%v -> %v)", s.Registry.Identifier, output, copyIn, copyOut))
 		} else {
 			s.RaiseIssue("Copy Error", fmt.Sprintf("[%v] Error on the copy: %v (%v -> %v)", s.Registry.Identifier, output, copyIn, copyOut))
