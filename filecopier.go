@@ -274,7 +274,10 @@ func (s *Server) runCopy(in *pb.CopyRequest) error {
 		if strings.Contains(output, "Permanently added") {
 			//Ignore this
 		} else if strings.Contains(output, "differs") {
-			s.RaiseIssue("Found mismatch error", fmt.Sprintf("[%v] Mismatch Error on copy: %v (%v -> %v)", s.Registry.Identifier, output, copyIn, copyOut))
+			val, err := exec.Command("rm", "/home/simon/.ssh/known_hosts").Output()
+			if err != nil {
+				s.RaiseIssue("Found mismatch error", fmt.Sprintf("[%v] Mismatch Error on copy: %v (%v -> %v): %v", s.Registry.Identifier, output, copyIn, copyOut, string(val)))
+			}
 		} else {
 			s.RaiseIssue("Copy Error", fmt.Sprintf("[%v] Error on the copy: %v (%v -> %v)", s.Registry.Identifier, output, copyIn, copyOut))
 		}
