@@ -280,7 +280,11 @@ func (s *Server) runCopy(in *pb.CopyRequest) error {
 			}
 		} else if strings.Contains(output, "IDENTIFICATION") {
 			command := output[strings.Index(output, "ssh-keygen"):strings.Index(output, "Password")]
-			s.RaiseIssue("Redux copy", fmt.Sprintf("Will run %v", command))
+			fs := strings.Fields(command)
+			out, err := exec.Command(fs[0], fs[1:]...).Output()
+			if err != nil {
+				s.RaiseIssue("Redux copy failed", fmt.Sprintf("%v -> %v, %v", command, string(out), err))
+			}
 		} else {
 			s.RaiseIssue("Copy Error", fmt.Sprintf("[%v] Error on the copy: %v (%v -> %v)", s.Registry.Identifier, output, copyIn, copyOut))
 		}
