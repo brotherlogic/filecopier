@@ -283,7 +283,7 @@ func (s *Server) runCopy(in *pb.CopyRequest) error {
 			fs := strings.Fields(command)
 			out, err := exec.Command(fs[0], fs[1:]...).CombinedOutput()
 			if err != nil {
-				s.RaiseIssue("Redux copy failed", fmt.Sprintf("(%v) %v -> %v, %v", s.Registry.Identifier, command, string(out), err))
+				s.RaiseIssue("Redux copy failed", fmt.Sprintf("(%v) %v %v -> %v, %v", s.Registry.Identifier, fs[0], fs[1:], string(out), err))
 			}
 		} else {
 			s.RaiseIssue("Copy Error", fmt.Sprintf("[%v] Error on the copy: %v (%v -> %v)", s.Registry.Identifier, output, copyIn, copyOut))
