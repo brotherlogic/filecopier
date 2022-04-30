@@ -278,6 +278,10 @@ func (s *Server) runCopy(in *pb.CopyRequest) error {
 			if err != nil {
 				s.RaiseIssue("Found mismatch error", fmt.Sprintf("[%v] Mismatch Error on copy: %v (%v -> %v): %v", s.Registry.Identifier, output, copyIn, copyOut, string(val)))
 			}
+			val, err = exec.Command("ssh-keyscan", "-t", "rsa", "github.com", ">>", "~/.ssh/known_hosts").CombinedOutput()
+			if err != nil {
+				s.RaiseIssue("Error adding github", fmt.Sprintf("Error is -> %v, %v", err, string(val)))
+			}
 		} else if strings.Contains(output, "IDENTIFICATION") {
 			command := output[strings.Index(output, "ssh-keygen"):strings.Index(output, "Password")]
 			fs := strings.Fields(command)
