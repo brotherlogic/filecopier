@@ -285,6 +285,9 @@ func (s *Server) runCopy(in *pb.CopyRequest) error {
 		} else if strings.Contains(output, "IDENTIFICATION") {
 			command := output[strings.Index(output, "ssh-keygen"):strings.Index(output, "Password")]
 			fs := strings.Fields(command)
+			for i := range fs {
+				fs[i] = strings.Replace(fs[i], "\"", "", -1)
+			}
 			out, err := exec.Command(fs[0], fs[1:]...).CombinedOutput()
 			if err != nil {
 				s.RaiseIssue("Redux copy failed", fmt.Sprintf("(%v) %v %v -> %v, %v", s.Registry.Identifier, fs[0], fs[1:], string(out), err))
