@@ -282,6 +282,7 @@ func (s *Server) runCopy(in *pb.CopyRequest) error {
 			if err != nil {
 				s.RaiseIssue("Error adding github", fmt.Sprintf("Error is -> %v, %v", err, string(val)))
 			}
+			s.Log(fmt.Sprintf("Added github on recreate: %v", string(val)))
 		} else if strings.Contains(output, "IDENTIFICATION") {
 			command := output[strings.Index(output, "ssh-keygen"):strings.Index(output, "Password")]
 			fs := strings.Fields(command)
