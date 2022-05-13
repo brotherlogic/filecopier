@@ -127,7 +127,7 @@ func (s *Server) Copy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse
 	s.ccopiesMutex.Unlock()
 
 	t := time.Now()
-	err := s.runCopy(in)
+	err := s.runCopy(ctx, in)
 	defer s.reduce()
 	return &pb.CopyResponse{MillisToCopy: time.Now().Sub(t).Nanoseconds() / 1000000}, err
 }

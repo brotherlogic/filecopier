@@ -215,7 +215,7 @@ var (
 	}, []string{"file", "destination"})
 )
 
-func (s *Server) runCopy(in *pb.CopyRequest) error {
+func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
 	s.current = in
 	copies.With(prometheus.Labels{"file": in.InputFile, "destination": in.OutputServer}).Inc()
 	stTime := time.Now()
@@ -224,7 +224,7 @@ func (s *Server) runCopy(in *pb.CopyRequest) error {
 	s.ccopies++
 	defer s.reduce()
 
-	s.Log(fmt.Sprintf("COPY: %v, %v to %v, %v", in.InputServer, in.InputFile, in.OutputServer, in.OutputFile))
+	s.CtxLog(ctx, fmt.Sprintf("COPY: %v, %v to %v, %v", in.InputServer, in.InputFile, in.OutputServer, in.OutputFile))
 	s.copies++
 
 	err := s.checker.check(in.InputServer)
@@ -259,14 +259,14 @@ func (s *Server) runCopy(in *pb.CopyRequest) error {
 	err = command.Start()
 	if err != nil {
 		s.lastError = fmt.Sprintf("CS %v", err)
-		s.Log(fmt.Sprintf("Error running copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output))
+		s.CtxLog(ctx, fmt.Sprintf("Error running copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output))
 		return fmt.Errorf("Error running copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
 	err = command.Wait()
 
 	if err != nil {
 		s.lastError = fmt.Sprintf("CW %v", err)
-		s.Log(fmt.Sprintf("Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output))
+		s.CtxLog(ctx, fmt.Sprintf("Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output))
 		return fmt.Errorf("Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
 
@@ -282,7 +282,7 @@ func (s *Server) runCopy(in *pb.CopyRequest) error {
 			if err != nil {
 				s.RaiseIssue("Error adding github", fmt.Sprintf("Error is -> %v, %v", err, string(val)))
 			}
-			s.Log(fmt.Sprintf("Added github on recreate: %v", string(val)))
+			s.CtxLog(ctx, fmt.Sprintf("Added github on recreate: %v", string(val)))
 		} else if strings.Contains(output, "IDENTIFICATION") {
 			command := output[strings.Index(output, "ssh-keygen"):strings.Index(output, "Password")]
 			fs := strings.Fields(command)
@@ -306,7 +306,7 @@ func (s *Server) runCopy(in *pb.CopyRequest) error {
 	}
 
 	s.lastError = fmt.Sprintf("DONE %v", output)
-	s.Log(fmt.Sprintf("Completed %v -> %v with %v in %v", copyIn, copyOut, output, s.copyTime))
+	s.CtxLog(ctx, fmt.Sprintf("Completed %v -> %v with %v in %v", copyIn, copyOut, output, s.copyTime))
 
 	//Perform the callback if needed - this is fire and forget
 	if len(in.GetCallback()) > 0 {

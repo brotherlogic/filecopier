@@ -9,6 +9,7 @@ import (
 	"time"
 
 	pb "github.com/brotherlogic/filecopier/proto"
+	"github.com/brotherlogic/goserver/utils"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"golang.org/x/net/context"
@@ -46,7 +47,9 @@ var (
 func (s *Server) runQueue() {
 	for entry := range s.queueChan {
 		entry.resp.Status = pb.CopyStatus_IN_PROGRESS
-		err := s.runCopy(entry.req)
+		ctx, cancel := utils.ManualContext(fmt.Sprintf("copy-for-%v", entry.req.InputFile), time.Hour)
+		defer cancel()
+		err := s.runCopy(ctx, entry.req)
 		if status.Convert(err).Code() == codes.Unavailable {
 			entry.resp.Status = pb.CopyStatus_IN_QUEUE
 			entry.resp.Repeats++
