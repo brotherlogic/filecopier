@@ -83,7 +83,7 @@ var (
 
 // QueueCopy copies over a key using a queue
 func (s *Server) QueueCopy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyResponse, error) {
-	if len(s.queue) > 20 {
+	if len(s.queueChan) > 20 {
 		return nil, status.Errorf(codes.ResourceExhausted, "Queue is full")
 	}
 
