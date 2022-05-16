@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"os/exec"
 	"strings"
 	"sync"
@@ -278,11 +279,17 @@ func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
 			if err != nil {
 				s.RaiseIssue("Found mismatch error", fmt.Sprintf("[%v] Mismatch Error on copy: %v (%v -> %v): %v", s.Registry.Identifier, output, copyIn, copyOut, string(val)))
 			}
-			val, err = exec.Command("ssh-keyscan", "-t", "rsa", "github.com", ">>", "~/.ssh/known_hosts").CombinedOutput()
+			val, err = exec.Command("ssh-keyscan", "-t", "rsa", "github.com").CombinedOutput()
 			if err != nil {
 				s.RaiseIssue("Error adding github", fmt.Sprintf("Error is -> %v, %v", err, string(val)))
 			}
-			s.CtxLog(ctx, fmt.Sprintf("Added github on recreate: %v", string(val)))
+
+			fh, err := os.OpenFile("/home/simon/.ssh/known_hosts", os.O_APPEND, 0777)
+			if err != nil {
+				s.RaiseIssue("Cannot open file", fmt.Sprintf("%v is why", err))
+			}
+			fh.WriteString(string(val))
+			fh.Close()
 		} else if strings.Contains(output, "IDENTIFICATION") {
 			command := output[strings.Index(output, "ssh-keygen"):strings.Index(output, "Password")]
 			fs := strings.Fields(command)
