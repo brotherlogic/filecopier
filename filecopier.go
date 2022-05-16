@@ -216,6 +216,42 @@ var (
 	}, []string{"file", "destination"})
 )
 
+func (s *Server) procCopy(output string) {
+	if len(output) > 0 && !strings.Contains("lost connection", output) {
+		if strings.Contains(output, "Permanently added") {
+			//Ignore this
+		} else if strings.Contains(output, "differs") {
+			val, err := exec.Command("rm", "/home/simon/.ssh/known_hosts").Output()
+			if err != nil {
+				s.RaiseIssue("Found mismatch error", fmt.Sprintf("[%v] Mismatch Error on copy: %v: %v", s.Registry.Identifier, output, string(val)))
+			}
+			val, err = exec.Command("ssh-keyscan", "-t", "rsa", "github.com").CombinedOutput()
+			if err != nil {
+				s.RaiseIssue("Error adding github", fmt.Sprintf("Error is -> %v, %v", err, string(val)))
+			}
+
+			fh, err := os.OpenFile("/home/simon/.ssh/known_hosts", os.O_APPEND, 0777)
+			if err != nil {
+				s.RaiseIssue("Cannot open file", fmt.Sprintf("%v is why", err))
+			}
+			fh.WriteString(string(val))
+			fh.Close()
+		} else if strings.Contains(output, "IDENTIFICATION") {
+			command := output[strings.Index(output, "ssh-keygen"):strings.Index(output, "Password")]
+			fs := strings.Fields(command)
+			for i := range fs {
+				fs[i] = strings.Replace(fs[i], "\"", "", -1)
+			}
+			out, err := exec.Command(fs[0], fs[1:]...).CombinedOutput()
+			if err != nil {
+				s.RaiseIssue("Redux copy failed", fmt.Sprintf("(%v) %v %v -> %v, %v", s.Registry.Identifier, fs[0], fs[1:], string(out), err))
+			}
+		} else {
+			s.RaiseIssue("Copy Error", fmt.Sprintf("[%v] Error on the copy: %v", s.Registry.Identifier, output))
+		}
+	}
+}
+
 func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
 	s.current = in
 	copies.With(prometheus.Labels{"file": in.InputFile, "destination": in.OutputServer}).Inc()
@@ -260,6 +296,7 @@ func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
 	err = command.Start()
 	if err != nil {
 		s.lastError = fmt.Sprintf("CS %v", err)
+		s.procCopy(output)
 		s.CtxLog(ctx, fmt.Sprintf("Error running copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output))
 		return fmt.Errorf("Error running copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
@@ -267,43 +304,12 @@ func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
 
 	if err != nil {
 		s.lastError = fmt.Sprintf("CW %v", err)
+		s.procCopy(output)
 		s.CtxLog(ctx, fmt.Sprintf("Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output))
 		return fmt.Errorf("Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
 
-	if len(output) > 0 && !strings.Contains("lost connection", output) {
-		if strings.Contains(output, "Permanently added") {
-			//Ignore this
-		} else if strings.Contains(output, "differs") {
-			val, err := exec.Command("rm", "/home/simon/.ssh/known_hosts").Output()
-			if err != nil {
-				s.RaiseIssue("Found mismatch error", fmt.Sprintf("[%v] Mismatch Error on copy: %v (%v -> %v): %v", s.Registry.Identifier, output, copyIn, copyOut, string(val)))
-			}
-			val, err = exec.Command("ssh-keyscan", "-t", "rsa", "github.com").CombinedOutput()
-			if err != nil {
-				s.RaiseIssue("Error adding github", fmt.Sprintf("Error is -> %v, %v", err, string(val)))
-			}
-
-			fh, err := os.OpenFile("/home/simon/.ssh/known_hosts", os.O_APPEND, 0777)
-			if err != nil {
-				s.RaiseIssue("Cannot open file", fmt.Sprintf("%v is why", err))
-			}
-			fh.WriteString(string(val))
-			fh.Close()
-		} else if strings.Contains(output, "IDENTIFICATION") {
-			command := output[strings.Index(output, "ssh-keygen"):strings.Index(output, "Password")]
-			fs := strings.Fields(command)
-			for i := range fs {
-				fs[i] = strings.Replace(fs[i], "\"", "", -1)
-			}
-			out, err := exec.Command(fs[0], fs[1:]...).CombinedOutput()
-			if err != nil {
-				s.RaiseIssue("Redux copy failed", fmt.Sprintf("(%v) %v %v -> %v, %v", s.Registry.Identifier, fs[0], fs[1:], string(out), err))
-			}
-		} else {
-			s.RaiseIssue("Copy Error", fmt.Sprintf("[%v] Error on the copy: %v (%v -> %v)", s.Registry.Identifier, output, copyIn, copyOut))
-		}
-	}
+	s.procCopy(output)
 
 	s.copyTime = time.Now().Sub(stTime)
 	s.tCopyTime += time.Now().Sub(stTime)
