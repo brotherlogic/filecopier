@@ -237,6 +237,7 @@ func (s *Server) procCopy(output string) {
 			fh.WriteString(string(val))
 			fh.Close()
 		} else if strings.Contains(output, "IDENTIFICATION") {
+			s.Log(fmt.Sprintf("%v -> %v : %v", strings.Index(output, "ssh-keygen"), strings.Index(output, "Password"), output))
 			command := output[strings.Index(output, "ssh-keygen"):strings.Index(output, "Password")]
 			fs := strings.Fields(command)
 			for i := range fs {
