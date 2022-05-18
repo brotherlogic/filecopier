@@ -217,10 +217,10 @@ var (
 )
 
 func (s *Server) procCopy(output string) {
-	if len(output) > 0 && !strings.Contains("lost connection", output) {
+	if len(output) > 0 {
 		if strings.Contains(output, "Permanently added") {
 			//Ignore this
-		} else if strings.Contains(output, "differs") {
+		} else if strings.Contains(output, "differs") || strings.Contains("lost connection", output) {
 			val, err := exec.Command("rm", "/home/simon/.ssh/known_hosts").Output()
 			if err != nil {
 				s.RaiseIssue("Found mismatch error", fmt.Sprintf("[%v] Mismatch Error on copy: %v: %v", s.Registry.Identifier, output, string(val)))
