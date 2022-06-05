@@ -230,7 +230,10 @@ func (s *Server) procCopy(output string) {
 				s.RaiseIssue("Error adding github", fmt.Sprintf("Error is -> %v, %v", cerr, string(val)))
 			}
 
-			os.Create("/home/simon/.ssh/known_hosts")
+			f, err := os.Create("/home/simon/.ssh/known_hosts")
+			if err != nil {
+				s.RaiseIssue("Cannot create file", fmt.Sprintf("Because of %v and %v", f, err))
+			}
 
 			fh, err := os.OpenFile("/home/simon/.ssh/known_hosts", os.O_APPEND, 0777)
 			if err != nil {
