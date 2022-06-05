@@ -236,7 +236,10 @@ func (s *Server) procCopy(output string) {
 			if err != nil {
 				s.RaiseIssue("Cannot open file", fmt.Sprintf("%v is why but %v and %v", err, val, cerr))
 			}
-			fh.WriteString(string(val))
+			v, err := fh.WriteString(string(val))
+			if err != nil {
+				s.RaiseIssue("Error writing", fmt.Sprintf("Cannot write string: %v and %v", v, err))
+			}
 			fh.Close()
 		} else if strings.Contains(output, "IDENTIFICATION") {
 			s.Log(fmt.Sprintf("%v -> %v : %v", strings.Index(output, "ssh-keygen"), strings.Index(output, "Password"), output))
