@@ -241,7 +241,7 @@ func (s *Server) procCopy(output string) {
 			}*/
 			v, err := fh.WriteString(string(val))
 			if err != nil {
-				s.RaiseIssue("Error writing", fmt.Sprintf("Cannot write string: %v and %v", v, err))
+				s.RaiseIssue("Error when writing", fmt.Sprintf("Cannot write string: %v and %v", v, err))
 			}
 			fh.Close()
 		} else if strings.Contains(output, "IDENTIFICATION") {
