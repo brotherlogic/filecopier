@@ -356,7 +356,7 @@ func main() {
 		log.SetOutput(ioutil.Discard)
 	}
 	server := Init()
-	server.PrepServer()
+	server.PrepServer("filecopier")
 	server.Register = server
 
 	err := server.keySetup()
@@ -366,7 +366,7 @@ func main() {
 		return
 	}
 
-	err = server.RegisterServerV2("filecopier", false, true)
+	err = server.RegisterServerV2(false)
 	server.DiskLog = true
 
 	if err == nil {
