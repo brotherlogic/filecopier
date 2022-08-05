@@ -8,9 +8,9 @@ require (
 	github.com/brotherlogic/goserver v0.0.0-20220802151516-4b60a60b3020
 	github.com/golang/protobuf v1.5.2
 	github.com/prometheus/client_golang v1.12.2
-	golang.org/x/net v0.0.0-20220802222814-0bcc04d9c69b
-	golang.org/x/sys v0.0.0-20220803195053-6e608f9ce704 // indirect
-	google.golang.org/genproto v0.0.0-20220803205849-8f55acc8769f // indirect
+	golang.org/x/net v0.0.0-20220805013720-a33c5aa5df48
+	golang.org/x/sys v0.0.0-20220804214406-8e32c043e418 // indirect
+	google.golang.org/genproto v0.0.0-20220805133916-01dd62135a58 // indirect
 	google.golang.org/grpc v1.48.0
 	google.golang.org/protobuf v1.28.1
 )
