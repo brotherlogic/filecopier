@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/brotherlogic/goserver"
-	"github.com/brotherlogic/goserver/utils"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"golang.org/x/net/context"
@@ -329,17 +328,16 @@ func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
 
 	s.lastError = fmt.Sprintf("DONE %v", output)
 	s.CtxLog(ctx, fmt.Sprintf("Completed %v -> %v with %v in %v", copyIn, copyOut, output, s.copyTime))
+	s.CtxLog(ctx, fmt.Sprintf("Calling back: %v", in.GetCallback()))
 
 	//Perform the callback if needed - this is fire and forget
 	if len(in.GetCallback()) > 0 {
 		conn, err := s.FDial(in.GetCallback())
 		if err == nil {
 			defer conn.Close()
-			ctx, cancel := utils.ManualContext("filecopier-callback", time.Minute)
 			s.CtxLog(ctx, fmt.Sprintf("Callingback: %v", in.GetCallback()))
 			client := pb.NewFileCopierCallbackClient(conn)
 			client.Callback(ctx, &pb.CallbackRequest{Key: in.GetKey()})
-			cancel()
 		}
 	}
 
