@@ -97,7 +97,7 @@ func (s *Server) QueueCopy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyRes
 				if len(q.resp.GetError()) > 0 {
 					err = status.Errorf(codes.Code(q.resp.GetErrorCode()), "%v", q.resp.GetError())
 				}
-				s.Log(fmt.Sprintf("Found (%v) in queue: %v -> %v", q.req, ind, q.resp))
+				s.CtxLog(ctx, fmt.Sprintf("Found (%v) in queue: %v -> %v", q.req, ind, q.resp))
 				return q.resp, err
 			}
 		} else {
@@ -111,7 +111,7 @@ func (s *Server) QueueCopy(ctx context.Context, in *pb.CopyRequest) (*pb.CopyRes
 	queue.With(prometheus.Labels{"file": in.InputFile, "destination": in.OutputServer}).Inc()
 	s.queue = append(s.queue, entry)
 	s.queueChan <- entry
-	s.Log(fmt.Sprintf("Added to queue: %v", len(s.queueChan)))
+	s.CtxLog(ctx, fmt.Sprintf("Added to queue: %v", len(s.queueChan)))
 	return r, nil
 }
 

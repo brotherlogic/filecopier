@@ -22,6 +22,7 @@ import (
 
 	pb "github.com/brotherlogic/filecopier/proto"
 	pbg "github.com/brotherlogic/goserver/proto"
+	"github.com/brotherlogic/goserver/utils"
 )
 
 var (
@@ -121,7 +122,7 @@ func Init() *Server {
 	return s
 }
 
-func (s *Server) keySetup() error {
+func (s *Server) keySetup(ctx context.Context) error {
 	keys, err := readKeys("/home/simon/.ssh/authorized_keys")
 	if err == nil {
 		s.keys = keys
@@ -142,7 +143,7 @@ func (s *Server) keySetup() error {
 		s.mykey = val
 	}
 
-	s.Log(fmt.Sprintf("Read keys-> %v, my key is %v", s.keys, s.mykey))
+	s.CtxLog(ctx, fmt.Sprintf("Read keys-> %v, my key is %v", s.keys, s.mykey))
 
 	return nil
 }
@@ -215,7 +216,7 @@ var (
 	}, []string{"file", "destination"})
 )
 
-func (s *Server) procCopy(output string) {
+func (s *Server) procCopy(ctx context.Context, output string) {
 	if len(output) > 0 {
 		if strings.Contains(output, "Permanently added") {
 			//Ignore this
@@ -244,7 +245,7 @@ func (s *Server) procCopy(output string) {
 			}
 			fh.Close()
 		} else if strings.Contains(output, "IDENTIFICATION") {
-			s.Log(fmt.Sprintf("%v -> %v : %v", strings.Index(output, "ssh-keygen"), strings.Index(output, "Password"), output))
+			s.CtxLog(ctx, fmt.Sprintf("%v -> %v : %v", strings.Index(output, "ssh-keygen"), strings.Index(output, "Password"), output))
 			command := output[strings.Index(output, "ssh-keygen"):strings.Index(output, "Password")]
 			fs := strings.Fields(command)
 			for i := range fs {
@@ -304,7 +305,7 @@ func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
 	err = command.Start()
 	if err != nil {
 		s.lastError = fmt.Sprintf("CS %v", err)
-		s.procCopy(output)
+		s.procCopy(ctx, output)
 		s.CtxLog(ctx, fmt.Sprintf("Error running copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output))
 		return status.Errorf(codes.Internal, "Error running copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
@@ -312,12 +313,12 @@ func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
 
 	if err != nil {
 		s.lastError = fmt.Sprintf("CW %v", err)
-		s.procCopy(output)
+		s.procCopy(ctx, output)
 		s.CtxLog(ctx, fmt.Sprintf("Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output))
 		return status.Errorf(codes.Internal, "Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
 
-	s.procCopy(output)
+	s.procCopy(ctx, output)
 
 	s.copyTime = time.Now().Sub(stTime)
 	s.tCopyTime += time.Now().Sub(stTime)
@@ -357,7 +358,9 @@ func main() {
 	server.PrepServer("filecopier")
 	server.Register = server
 
-	err := server.keySetup()
+	ctx, cancel := utils.ManualContext("fc-key", time.Minute)
+	err := server.keySetup(ctx)
+	cancel()
 
 	if err != nil {
 		fmt.Printf("Something is wrong with the key setup: %v", err)
