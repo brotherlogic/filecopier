@@ -51,7 +51,7 @@ func (p *prodWriter) writeKeys(keys map[string]string) error {
 }
 
 type checker interface {
-	check(server string) error
+	check(ctx context.Context, server string) error
 }
 
 type prodChecker struct {
@@ -60,8 +60,8 @@ type prodChecker struct {
 	dial   func(ctx context.Context, job, server string) (*grpc.ClientConn, error)
 }
 
-func (p *prodChecker) check(server string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+func (p *prodChecker) check(ctx context.Context, server string) error {
+	ctx, cancel := context.WithTimeout(ctx, time.Minute)
 	defer cancel()
 
 	conn, err := p.dial(ctx, "filecopier", server)
@@ -273,13 +273,13 @@ func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
 	s.CtxLog(ctx, fmt.Sprintf("COPY: %v, %v to %v, %v", in.InputServer, in.InputFile, in.OutputServer, in.OutputFile))
 	s.copies++
 
-	err := s.checker.check(in.InputServer)
+	err := s.checker.check(ctx, in.InputServer)
 	if err != nil {
 		s.lastError = fmt.Sprintf("IN: %v", err)
 		return status.Errorf(status.Convert(err).Code(), "Input %v is unable to handle this request: %v", in.InputServer, err)
 	}
 
-	err = s.checker.check(in.OutputServer)
+	err = s.checker.check(ctx, in.OutputServer)
 	if err != nil {
 		s.lastError = fmt.Sprintf("OUT: %v", err)
 		return status.Errorf(status.Convert(err).Code(), "Output %v is unable to handle this request: %v", in.OutputServer, err)
