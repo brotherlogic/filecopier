@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -10,10 +11,18 @@ import (
 	pb "github.com/brotherlogic/filecopier/proto"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/sdk/resource"
+	tracesdk "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
+
+const name = "filecopier"
 
 // ReceiveKey takes a key and adds it
 func (s *Server) ReceiveKey(ctx context.Context, in *pb.KeyRequest) (*pb.KeyResponse, error) {
@@ -143,7 +152,36 @@ func (s *Server) Exists(ctx context.Context, req *pb.ExistsRequest) (*pb.ExistsR
 	return &pb.ExistsResponse{Exists: true}, nil
 }
 
-func (s *Server) Replicate(ctx context.Context, req *pb.ReplicateRequest) (*pb.ReplicateResponse, error) {
+func tracerProvider(url string) (*tracesdk.TracerProvider, error) {
+	// Create the Jaeger exporter
+	exp, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(url)))
+	if err != nil {
+		return nil, err
+	}
+	tp := tracesdk.NewTracerProvider(
+		// Always be sure to batch in production.
+		tracesdk.WithBatcher(exp),
+		// Record information about this application in a Resource.
+		tracesdk.WithResource(resource.NewWithAttributes(
+			semconv.SchemaURL,
+			semconv.ServiceNameKey.String("filecopier"),
+			attribute.String("environment", "prod"),
+			attribute.Int64("ID", 1),
+		)),
+	)
+	return tp, nil
+}
+
+func (s *Server) Replicate(nctx context.Context, req *pb.ReplicateRequest) (*pb.ReplicateResponse, error) {
+	tp, err := tracerProvider("http://toru:14268/api/traces")
+	if err != nil {
+		log.Fatal(err)
+	}
+	otel.SetTracerProvider(tp)
+
+	ctx, span := otel.Tracer(name).Start(nctx, "Run")
+	defer span.End()
+
 	servers, err := s.FFind(ctx, "filecopier")
 	if err != nil {
 		return nil, err
