@@ -53,7 +53,7 @@ func (s *Server) runQueue() {
 		if status.Convert(err).Code() == codes.Unavailable {
 			entry.resp.Status = pb.CopyStatus_IN_QUEUE
 			entry.resp.Repeats++
-			if entry.resp.Repeats < 1000 {
+			if entry.resp.Repeats < 10 {
 				retries.Inc()
 				s.queueChan <- entry
 			}
