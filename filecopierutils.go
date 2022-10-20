@@ -48,7 +48,6 @@ func (s *Server) runQueue() {
 	for entry := range s.queueChan {
 		entry.resp.Status = pb.CopyStatus_IN_PROGRESS
 		ctx, cancel := utils.ManualContext(fmt.Sprintf("copy-for-%v", entry.req.InputFile), time.Hour)
-		defer cancel()
 		err := s.runCopy(ctx, entry.req)
 		if status.Convert(err).Code() == codes.Unavailable {
 			entry.resp.Status = pb.CopyStatus_IN_QUEUE
@@ -64,6 +63,7 @@ func (s *Server) runQueue() {
 			}
 			entry.resp.Status = pb.CopyStatus_COMPLETE
 		}
+		cancel()
 
 		time.Sleep(time.Second)
 	}
