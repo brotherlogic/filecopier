@@ -50,6 +50,7 @@ func (s *Server) runQueue() {
 		ctx, cancel := utils.ManualContext(fmt.Sprintf("copy-for-%v", entry.req.InputFile), time.Hour)
 		err := s.runCopy(ctx, entry.req)
 		if status.Convert(err).Code() == codes.Unavailable {
+			s.CtxLog(ctx, fmt.Sprintf("CopyFailed %v", entry))
 			entry.resp.Status = pb.CopyStatus_IN_QUEUE
 			entry.resp.Repeats++
 			if entry.resp.Repeats < 10 {
