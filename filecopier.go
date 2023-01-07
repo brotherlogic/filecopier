@@ -75,7 +75,7 @@ func (p *prodChecker) check(ctx context.Context, server string) error {
 	return err
 }
 
-//Server main server type
+// Server main server type
 type Server struct {
 	*goserver.GoServer
 	keys            map[string]string
@@ -158,7 +158,7 @@ func (s *Server) ReportHealth() bool {
 	return true
 }
 
-//Shutdown the server
+// Shutdown the server
 func (s *Server) Shutdown(ctx context.Context) error {
 	return nil
 }
@@ -216,7 +216,7 @@ var (
 	}, []string{"file", "destination"})
 )
 
-func (s *Server) procCopy(ctx context.Context, output string) {
+func (s *Server) procCopy(ctx context.Context, output string, in *pb.CopyRequest) {
 	if len(output) > 0 {
 		if strings.Contains(output, "Permanently added") {
 			//Ignore this
@@ -256,7 +256,7 @@ func (s *Server) procCopy(ctx context.Context, output string) {
 				s.RaiseIssue("Redux copy failed", fmt.Sprintf("(%v) %v %v -> %v, %v", s.Registry.Identifier, fs[0], fs[1:], string(out), err))
 			}
 		} else {
-			s.RaiseIssue("Copy Error", fmt.Sprintf("[%v] Error on the copy: %v", s.Registry.Identifier, output))
+			s.RaiseIssue("Copy Error", fmt.Sprintf("[%v] Error on the copy: %v -> %v", s.Registry.Identifier, output, in))
 		}
 	}
 }
@@ -305,7 +305,7 @@ func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
 	err = command.Start()
 	if err != nil {
 		s.lastError = fmt.Sprintf("CS %v", err)
-		s.procCopy(ctx, output)
+		s.procCopy(ctx, output, in)
 		s.CtxLog(ctx, fmt.Sprintf("Error running copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output))
 		return status.Errorf(codes.Internal, "Error running copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
@@ -313,12 +313,12 @@ func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
 
 	if err != nil {
 		s.lastError = fmt.Sprintf("CW %v", err)
-		s.procCopy(ctx, output)
+		s.procCopy(ctx, output, in)
 		s.CtxLog(ctx, fmt.Sprintf("Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output))
 		return status.Errorf(codes.Internal, "Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
 
-	s.procCopy(ctx, output)
+	s.procCopy(ctx, output, in)
 
 	s.copyTime = time.Now().Sub(stTime)
 	s.tCopyTime += time.Now().Sub(stTime)
