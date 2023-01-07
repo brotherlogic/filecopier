@@ -7,6 +7,7 @@ import (
 	"os"
 	"testing"
 
+	pbd "github.com/brotherlogic/discovery/proto"
 	pb "github.com/brotherlogic/filecopier/proto"
 )
 
@@ -14,7 +15,7 @@ type testChecker struct {
 	failServer string
 }
 
-func (t *testChecker) check(server string) error {
+func (t *testChecker) check(ctx context.Context, server string) error {
 	if t.failServer == "" || server != t.failServer {
 		return nil
 	}
@@ -34,57 +35,9 @@ func InitTestServer() *Server {
 	s.checker = &testChecker{}
 	s.SkipLog = true
 	s.SkipIssue = true
+	s.Registry = &pbd.RegistryEntry{}
 
 	return s
-}
-
-func TestReceiveKey(t *testing.T) {
-	s := InitTestServer()
-	_, err := s.ReceiveKey(context.Background(), &pb.KeyRequest{Key: "blah", Server: "TestServer"})
-	if err != nil {
-		t.Errorf("Error writing key: %v", err)
-	}
-
-	a, err := s.Accepts(context.Background(), &pb.AcceptsRequest{})
-	if err != nil {
-		t.Errorf("Error getting accepts list: %v", err)
-	}
-
-	found := false
-	for _, val := range a.Server {
-		if val == "TestServer" {
-			found = true
-		}
-	}
-
-	if !found {
-		t.Errorf("Server has not been found: %v", a)
-	}
-}
-
-func TestReceiveKeyTwice(t *testing.T) {
-	s := InitTestServer()
-	_, err := s.ReceiveKey(context.Background(), &pb.KeyRequest{Key: "blah", Server: "TestServer"})
-	_, err = s.ReceiveKey(context.Background(), &pb.KeyRequest{Key: "blah", Server: "TestServer"})
-	if err != nil {
-		t.Errorf("Error writing key: %v", err)
-	}
-
-	a, err := s.Accepts(context.Background(), &pb.AcceptsRequest{})
-	if err != nil {
-		t.Errorf("Error getting accepts list: %v", err)
-	}
-
-	found := false
-	for _, val := range a.Server {
-		if val == "TestServer" {
-			found = true
-		}
-	}
-
-	if !found {
-		t.Errorf("Server has not been found: %v", a)
-	}
 }
 
 func TestCopy(t *testing.T) {

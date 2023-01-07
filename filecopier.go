@@ -305,7 +305,7 @@ func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
 	err = command.Start()
 	if err != nil {
 		s.lastError = fmt.Sprintf("CS %v", err)
-		s.procCopy(ctx, output)
+		s.procCopy(ctx, output, in)
 		s.CtxLog(ctx, fmt.Sprintf("Error running copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output))
 		return status.Errorf(codes.Internal, "Error running copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
@@ -313,7 +313,7 @@ func (s *Server) runCopy(ctx context.Context, in *pb.CopyRequest) error {
 
 	if err != nil {
 		s.lastError = fmt.Sprintf("CW %v", err)
-		s.procCopy(ctx, output)
+		s.procCopy(ctx, output, in)
 		s.CtxLog(ctx, fmt.Sprintf("Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output))
 		return status.Errorf(codes.Internal, "Error waiting on copy: %v, %v -> %v (%v)", copyIn, copyOut, err, output)
 	}
