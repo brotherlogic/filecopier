@@ -1278,8 +1278,8 @@ github.com/brotherlogic/keystore v0.0.0-20221218025925-612b2a89a337/go.mod h1:Hm
 github.com/brotherlogic/keystore v0.0.0-20221225031157-d9efa4c60049/go.mod h1:C9J65Ac18KzGx/mehDPyyZtw2c9HZ5/55WOPjq50cBM=
 github.com/brotherlogic/keystore v0.0.0-20230101043504-05ac1b6cfc9c/go.mod h1:GU6KzWOpB7DcNYdGPacV/YwqcG1Q7maNGL1+W9df0Sg=
 github.com/brotherlogic/keystore v0.0.0-20230108052654-392c7a9b9675/go.mod h1:G0b2VVHAc6Qbgzr6KIKVyqrb8A6MTtT5OvMloLr7HC4=
-github.com/brotherlogic/keystore v0.0.0-20230126180015-915f77715725 h1:KO3rYB1LFQaCMg9Q5CY7MGYjmUi0hPs6pnMNtjuw6vE=
-github.com/brotherlogic/keystore v0.0.0-20230126180015-915f77715725/go.mod h1:5N9w9fIQgREfFfWYyff1E367Q2qpRCJPxzRlm+cHAgE=
+github.com/brotherlogic/keystore v0.0.0-20230126183740-1f9527ba57c3 h1:D4yZDrLknoqO4dIxkEAM5/n4ahI+giRArsK8zZKg0mY=
+github.com/brotherlogic/keystore v0.0.0-20230126183740-1f9527ba57c3/go.mod h1:5N9w9fIQgREfFfWYyff1E367Q2qpRCJPxzRlm+cHAgE=
 github.com/brotherlogic/location v0.0.0-20200818030042-5fd88850d466/go.mod h1:Hql6VzfiEZCUuIY16ghEc5UCmZpLKIGwJ5u34K+lhgs=
 github.com/brotherlogic/lock v0.0.0-20210715133423-34193158ab11/go.mod h1:kJuzJh7A857mikcPCVMSlqTbSXO0UaOe6qKpB8Mtix0=
 github.com/brotherlogic/lock v0.0.0-20211018000640-77ca8dec85fb/go.mod h1:cQbWuJCYAOsa8ruwZ7fgMRuG+qOsgvPfwb4x5aULshg=
