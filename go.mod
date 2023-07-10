@@ -20,7 +20,7 @@ require (
 	github.com/brotherlogic/githubcard v0.0.0-20230705044623-f92f4f39baa5 // indirect
 	github.com/brotherlogic/gobuildslave v0.0.0-20230604044345-1e331dee389b // indirect
 	github.com/brotherlogic/keystore v0.0.0-20230605062808-e90788956f75 // indirect
-	github.com/brotherlogic/lock v0.0.0-20230703090618-9ca68550fb77 // indirect
+	github.com/brotherlogic/lock v0.0.0-20230710095053-e4cd27abe36a // indirect
 	github.com/brotherlogic/logging v0.0.0-20230704201531-0f8167670aa8 // indirect
 	github.com/brotherlogic/monitor v0.0.0-20221025152653-c10877c5f9e6 // indirect
 	github.com/brotherlogic/versionserver v0.0.0-20221025154054-c9bcd41be2f2 // indirect
