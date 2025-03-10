@@ -8,12 +8,12 @@ github.com/brotherlogic/discovery v0.0.0-20241109204028-02908558af09 h1:/G6RM6m/
 github.com/brotherlogic/discovery v0.0.0-20241109204028-02908558af09/go.mod h1:ih6YWeSvJfqZHdtPujz/mbs2fdnLD9HKVnPYplvriEY=
 github.com/brotherlogic/dstore v0.0.0-20250310194356-0f174da75a74 h1:dY88WEGl3nJ2pdldLf7Wn+J61TB6S6JF2C94wpu6TTQ=
 github.com/brotherlogic/dstore v0.0.0-20250310194356-0f174da75a74/go.mod h1:/yfWhU0/gyW7apP8Io1NniC1lOilaXfI9VPExJ2aFRU=
-github.com/brotherlogic/githubcard v0.0.0-20250310193401-13ac06ae8c99 h1:7NeDgOjzEsE4aIItHNDErqWBSmYe5nKAE2AN2mMXPMg=
-github.com/brotherlogic/githubcard v0.0.0-20250310193401-13ac06ae8c99/go.mod h1:5DNIOOZ0OQS1Ziq6ANb9Q/uNyCO0FLMNr/o1ubQrTsQ=
+github.com/brotherlogic/githubcard v0.0.0-20250310203940-52387cfe0194 h1:hRj28TPDoG41obPauCO2Zz1sXsLlEFKL6NUN8ZF8Llw=
+github.com/brotherlogic/githubcard v0.0.0-20250310203940-52387cfe0194/go.mod h1:A+andbwZCcW4LLPQ/0Mcd1bt1A3ebtMb+5Ss5Pcl/9Q=
 github.com/brotherlogic/githubridge v0.2848.0 h1:WnTceh+IL+HKuitKTElpqSLZ6tBIRriQDCyEhc2lyJY=
 github.com/brotherlogic/githubridge v0.2848.0/go.mod h1:1Izl2qh17QzTwv4+0Waq/xAnbaywurJQHSN19/PlPvU=
-github.com/brotherlogic/gobuildslave v0.0.0-20250310195618-1e619fc523ca h1:O2JHKh8muDMU8d7CgM9qJZR34iqvc8M0LqIDd77WJkM=
-github.com/brotherlogic/gobuildslave v0.0.0-20250310195618-1e619fc523ca/go.mod h1:ds+600av387Ebjf0rusByfYqgDsXi4QN2p7Iwa1Z7u4=
+github.com/brotherlogic/gobuildslave v0.0.0-20250310203533-42ff79444506 h1:E611G2iJ93a6WG8PAfH1fWSPG+vwUr4Wbg1q0wQdKBo=
+github.com/brotherlogic/gobuildslave v0.0.0-20250310203533-42ff79444506/go.mod h1:vyOnE/s0mIv974oJ7Bp47RgwrC6JkdccAsFwWYVZRkk=
 github.com/brotherlogic/godiscogs v0.0.0-20240403143827-f1692f7a0410 h1:r2U3/0eQ42rtWieWGNyp7VFUAnhQWHhaRk864Wb0KSM=
 github.com/brotherlogic/godiscogs v0.0.0-20240403143827-f1692f7a0410/go.mod h1:4wYe3uogEJqP77td2b2j69c+TLcSDrqgd5pqj7vlb6U=
 github.com/brotherlogic/goserver v0.0.0-20250123145056-95c6fbb2310a h1:rni9hUmBPIAdPCP3FsrgX570YIWTsagksIoPmKXo42Q=
