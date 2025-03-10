@@ -17,7 +17,7 @@ require (
 	github.com/brotherlogic/buildserver v0.0.0-20250310172938-b9b89637192c // indirect
 	github.com/brotherlogic/datastore v0.0.0-20250113225754-a9cab19c721e // indirect
 	github.com/brotherlogic/dstore v0.0.0-20250310184600-d953f8cce04e // indirect
-	github.com/brotherlogic/githubcard v0.0.0-20250310183219-b67ce5c68ab1 // indirect
+	github.com/brotherlogic/githubcard v0.0.0-20250310193401-13ac06ae8c99 // indirect
 	github.com/brotherlogic/githubridge v0.2848.0 // indirect
 	github.com/brotherlogic/gobuildslave v0.0.0-20250310185819-354e7470429f // indirect
 	github.com/brotherlogic/keystore v0.0.0-20240508161349-814b3200b126 // indirect
