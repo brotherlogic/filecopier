@@ -8,21 +8,21 @@ require (
 	github.com/golang/protobuf v1.5.4
 	github.com/prometheus/client_golang v1.22.0
 	golang.org/x/net v0.40.0
-	google.golang.org/grpc v1.72.1
+	google.golang.org/grpc v1.72.2
 	google.golang.org/protobuf v1.36.6
 )
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/brotherlogic/buildserver v0.0.0-20250510022436-1f33b0f2d934 // indirect
+	github.com/brotherlogic/buildserver v0.0.0-20250522232219-b5775fed3ad2 // indirect
 	github.com/brotherlogic/datastore v0.0.0-20250501192221-40c62e0c9e0b // indirect
-	github.com/brotherlogic/dstore v0.0.0-20250522043207-004e432d26a3 // indirect
-	github.com/brotherlogic/githubcard v0.0.0-20250517033556-832dd91f6099 // indirect
-	github.com/brotherlogic/githubridge v0.2857.0 // indirect
+	github.com/brotherlogic/dstore v0.0.0-20250522044449-f116e466047c // indirect
+	github.com/brotherlogic/githubcard v0.0.0-20250524034235-074634b63c61 // indirect
+	github.com/brotherlogic/githubridge v0.2858.0 // indirect
 	github.com/brotherlogic/gobuildslave v0.0.0-20250509192246-2e37750a2b43 // indirect
 	github.com/brotherlogic/keystore v0.0.0-20240508161349-814b3200b126 // indirect
-	github.com/brotherlogic/lock v0.0.0-20250517000346-47cb6384d8af // indirect
-	github.com/brotherlogic/logging v0.0.0-20250522043621-9946b93696e2 // indirect
+	github.com/brotherlogic/lock v0.0.0-20250524004012-506a8e9caae6 // indirect
+	github.com/brotherlogic/logging v0.0.0-20250524004209-228bd134c371 // indirect
 	github.com/brotherlogic/monitor v0.0.0-20221025152653-c10877c5f9e6 // indirect
 	github.com/brotherlogic/versionserver v0.0.0-20221025154054-c9bcd41be2f2 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
@@ -34,5 +34,5 @@ require (
 	github.com/struCoder/pidusage v0.2.1 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.25.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250519155744-55703ea1f237 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250528174236-200df99c418a // indirect
 )
