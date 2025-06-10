@@ -3,7 +3,7 @@ module github.com/brotherlogic/filecopier
 go 1.23.2
 
 require (
-	github.com/brotherlogic/discovery v0.0.0-20250608201506-e686efc28446
+	github.com/brotherlogic/discovery v0.0.0-20250610135608-6c0a4c6dd8e1
 	github.com/brotherlogic/goserver v0.0.0-20250608182006-4ace595931a5
 	github.com/golang/protobuf v1.5.4
 	github.com/prometheus/client_golang v1.22.0
@@ -22,7 +22,7 @@ require (
 	github.com/brotherlogic/gobuildslave v0.0.0-20250610001859-de41fbd95a26 // indirect
 	github.com/brotherlogic/keystore v0.0.0-20240508161349-814b3200b126 // indirect
 	github.com/brotherlogic/lock v0.0.0-20250610002501-69c50b3c6ab1 // indirect
-	github.com/brotherlogic/logging v0.0.0-20250609203035-01dc3cbb8be0 // indirect
+	github.com/brotherlogic/logging v0.0.0-20250610135652-2fe05658d78a // indirect
 	github.com/brotherlogic/monitor v0.0.0-20221025152653-c10877c5f9e6 // indirect
 	github.com/brotherlogic/versionserver v0.0.0-20221025154054-c9bcd41be2f2 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
