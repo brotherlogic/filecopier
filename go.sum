@@ -4,8 +4,8 @@ github.com/brotherlogic/buildserver v0.0.0-20250611001501-d9e98e4d688c h1:2MFSsi
 github.com/brotherlogic/buildserver v0.0.0-20250611001501-d9e98e4d688c/go.mod h1:6N/NGT3l0EP5MUOnvGywR8uFaqLNGzJDK31GNn6kLB0=
 github.com/brotherlogic/datastore v0.0.0-20250610012354-722a6beaa331 h1:XTRMSwtcgm8sBrtDZzXCfkUey9r+eOYjFj85HxuEd10=
 github.com/brotherlogic/datastore v0.0.0-20250610012354-722a6beaa331/go.mod h1:myPHKOYfXo6wQFA2eU5n+0ZuIljYaye3FUUepu5zycI=
-github.com/brotherlogic/discovery v0.0.0-20250610235802-9c50e1b2842e h1:R/eENXm2AjEPc8XpEsD6Gn2SoKA8w3uH1VrcbLlGPxI=
-github.com/brotherlogic/discovery v0.0.0-20250610235802-9c50e1b2842e/go.mod h1:y6K1ivtMcQFf53Ev9P+XnkzRKosgIaOdkAiERclue0o=
+github.com/brotherlogic/discovery v0.0.0-20250611004054-1e183b16a91c h1:caFDL39nnXOWynr1Q2jYK8ErGL2tP8SR51g2fszNdXI=
+github.com/brotherlogic/discovery v0.0.0-20250611004054-1e183b16a91c/go.mod h1:3jQMmhfBEv23FkaAu/m6T1ACOtYcNgGpzxxz1nTuweU=
 github.com/brotherlogic/dstore v0.0.0-20250610235237-cdc61358cf05 h1:/cikZkgNeIT0+K32/Q2t96zWYeeuH88f6j0RwDcHsuU=
 github.com/brotherlogic/dstore v0.0.0-20250610235237-cdc61358cf05/go.mod h1:T/dWvCWxYAKC0qzlXCR5+kcmXDEjGhgO8kaF3RJ565k=
 github.com/brotherlogic/githubcard v0.0.0-20250610012841-452c31c6d6aa h1:aUlnkWEmKYN7CDIFMOv2kD1q/PhHxAIyBM1sN+SrjWk=
