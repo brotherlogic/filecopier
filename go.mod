@@ -3,7 +3,7 @@ module github.com/brotherlogic/filecopier
 go 1.23.2
 
 require (
-	github.com/brotherlogic/discovery v0.0.0-20250611004054-1e183b16a91c
+	github.com/brotherlogic/discovery v0.0.0-20250611005728-937f60df3fe0
 	github.com/brotherlogic/goserver v0.0.0-20250608182006-4ace595931a5
 	github.com/golang/protobuf v1.5.4
 	github.com/prometheus/client_golang v1.22.0
