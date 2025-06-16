@@ -255,9 +255,7 @@ func (s *Server) procCopy(ctx context.Context, output string, in *pb.CopyRequest
 			if err != nil {
 				s.RaiseIssue("Redux copy failed", fmt.Sprintf("(%v) %v %v -> %v, %v", s.Registry.Identifier, fs[0], fs[1:], string(out), err))
 			}
-		} else {
-			s.RaiseIssue("Copy Error", fmt.Sprintf("[%v] Error on the copy: %v -> %v", s.Registry.Identifier, output, in))
-		}
+		} 
 	}
 }
 
